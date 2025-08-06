@@ -1,0 +1,59 @@
+﻿@model IEnumerable<DemoHotelBooking.ViewModels.InvoiceView>
+
+@{
+    ViewData["Title"] = "Danh sách hóa đơn";
+    
+}
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Mã Phiếu
+            </th>
+            <th>
+                Khách hàng
+            </th>
+            <th>
+                Số điện thoại
+            </th>
+            <th>
+                Ngày nhận phòng
+            </th>
+            <th>
+                Ngày trả phòng
+            </th>
+            <th>
+                Trạng thái
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Invoice.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Invoice.Booking.Customer.FullName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Invoice.Booking.Customer.PhoneNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Invoice.Booking.CheckinDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Invoice.Booking.CheckoutDate)
+                </td>
+                <td >
+                    @Html.DisplayFor(modelItem => item.Status)
+                </td>
+                <td>
+                    <a asp-action="invoicedetail" asp-route-id="@item.Invoice.Id">Xem chi tiết</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

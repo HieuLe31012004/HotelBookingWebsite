@@ -1,0 +1,76 @@
+@model DemoHotelBooking.ViewModels.LoginViewModel
+
+@{
+    ViewData["Title"] = "Đăng nhập";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-xxl py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-7">
+                <div class="card shadow-lg border-0">
+                    <div class="card-header bg-primary text-white text-center py-4">
+                        <h3 class="mb-0">
+                            <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập
+                        </h3>
+                        <small>Chào mừng bạn trở lại!</small>
+                    </div>
+                    <div class="card-body p-5">
+                        <form asp-action="Login" method="post">
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                            
+                            <input name="ReturnUrl" type="hidden" value="@ViewData["ReturnUrl"]" />
+                            
+                            <div class="mb-4">
+                                <label asp-for="UserName" class="form-label fw-bold">
+                                    <i class="fas fa-user me-2 text-primary"></i>Email/Tên đăng nhập
+                                </label>
+                                <input asp-for="UserName" class="form-control form-control-lg" 
+                                       placeholder="Nhập email hoặc tên đăng nhập" autocomplete="username" />
+                                <span asp-validation-for="UserName" class="text-danger small"></span>
+                            </div>
+
+                            <div class="mb-4">
+                                <label asp-for="Password" class="form-label fw-bold">
+                                    <i class="fas fa-lock me-2 text-primary"></i>Mật khẩu
+                                </label>
+                                <input asp-for="Password" class="form-control form-control-lg" 
+                                       placeholder="Nhập mật khẩu" autocomplete="current-password" />
+                                <span asp-validation-for="Password" class="text-danger small"></span>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input asp-for="RememberMe" class="form-check-input" />
+                                    <label asp-for="RememberMe" class="form-check-label">
+                                        Ghi nhớ đăng nhập
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="d-grid mb-4">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <hr class="my-4">
+                        
+                        <div class="text-center">
+                            <p class="text-muted mb-3">Chưa có tài khoản?</p>
+                            <a asp-action="Register" class="btn btn-outline-success btn-lg">
+                                <i class="fas fa-user-plus me-2"></i>Đăng ký ngay
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

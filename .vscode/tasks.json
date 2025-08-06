@@ -1,0 +1,36 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run Hotel Booking Application",
+			"type": "shell",
+			"command": "dotnet",
+			"args": [
+				"run"
+			],
+			"group": "build",
+			"isBackground": true,
+			"problemMatcher": [
+				"$msCompile"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}/DemoHotelBooking"
+			}
+		},
+		{
+			"label": "Build Application",
+			"type": "shell",
+			"command": "dotnet",
+			"args": [
+				"build"
+			],
+			"group": "build",
+			"problemMatcher": [
+				"$msCompile"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}/DemoHotelBooking"
+			}
+		}
+	]
+}

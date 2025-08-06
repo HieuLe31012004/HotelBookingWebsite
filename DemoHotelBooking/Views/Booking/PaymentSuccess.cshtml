@@ -1,0 +1,42 @@
+﻿@{
+    ViewData["Title"] = "Booking";
+    Layout = "~/Views/Shared/_Empty.cshtml";
+}
+<link rel="stylesheet" href="~/css/sPayment.css">    ﻿
+<link rel="stylesheet" href="~/css/PaymentSuccess.css">
+
+<div id="alert-box" class="success-message">
+    <div class="close-button">
+        <button id="close-alert-button">X</button>
+    </div>
+    <h2>Đặt phòng thành công!</h2>
+    <div id="countdown-timer" class="countdown-t">5</div>
+
+</div>
+<script>
+    document.getElementById('close-alert-button').addEventListener('click', function () {
+        window.location.href = '/Home/Index';
+    });
+
+    function startCountdown(duration, display) {
+        var timer = duration, seconds;
+        var countdownInterval = setInterval(function () {
+            seconds = parseInt(timer % 60, 10);
+
+            display.textContent = seconds;
+
+            if (--timer < 0) {
+                clearInterval(countdownInterval);
+                window.location.href = '/Home/Index';
+            }
+        }, 1000);
+    }
+
+    window.onload = function () {
+        var countdownDisplay = document.getElementById('countdown-timer');
+        var countdownTime = 5;
+        countdownDisplay.textContent = countdownTime;
+        document.getElementById('alert-box').style.display = 'block';
+        startCountdown(countdownTime, countdownDisplay);
+    };
+</script>

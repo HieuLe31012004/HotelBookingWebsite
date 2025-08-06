@@ -1,0 +1,499 @@
+@model DemoHotelBooking.Models.Room
+
+@{
+    ViewData["Title"] = "Chi Tiết Phòng - Admin";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .room-image-carousel {
+        width: 100%;
+        max-width: 100%;
+        aspect-ratio: 4/3;
+        overflow: hidden;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        background: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .carousel-item img {
+        width: 100%;
+        height: auto;
+        max-height: 400px;
+        object-fit: cover;
+        aspect-ratio: 4/3;
+        display: block;
+        margin: 0 auto;
+    }
+
+    media (max-width: 768px) {
+        .room-image-carousel {
+            aspect-ratio: 16/10;
+            min-height: 180px;
+        }
+        .carousel-item img {
+            max-height: 220px;
+            aspect-ratio: 16/10;
+        }
+    }
+
+    media (max-width: 480px) {
+        .room-image-carousel {
+            aspect-ratio: 1/1;
+            min-height: 120px;
+        }
+        .carousel-item img {
+            max-height: 140px;
+            aspect-ratio: 1/1;
+        }
+    }
+
+    .status-badge {
+        font-size: 1.1em;
+        padding: 8px 16px;
+        border-radius: 25px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-available {
+        background: linear-gradient(45deg, #28a745, #20c997);
+        color: white;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    }
+
+    .status-occupied {
+        background: linear-gradient(45deg, #dc3545, #fd7e14);
+        color: white;
+        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+    }
+
+    .status-maintenance {
+        background: linear-gradient(45deg, #ffc107, #ff8c00);
+        color: #333;
+        box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+    }
+
+    .admin-detail-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+
+    .admin-card-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, #ff8c00 100%);
+        color: white;
+        padding: 20px;
+        border: none;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        padding: 25px;
+    }
+
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 2px solid #f8f9fa;
+    }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+    .info-label {
+        font-weight: 600;
+        color: #495057;
+        font-size: 1.05em;
+    }
+
+    .info-value {
+        font-weight: 500;
+        color: #212529;
+        text-align: right;
+    }
+
+    .price-highlight {
+        font-size: 1.4em;
+        font-weight: bold;
+        background: linear-gradient(45deg, var(--primary-color), #ff8c00);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .admin-actions {
+        padding: 20px;
+        background: #f8f9fa;
+        border-top: 3px solid var(--primary-color);
+    }
+
+    .btn-admin {
+        padding: 10px 25px;
+        margin: 5px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+        .btn-admin:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+    .carousel-control-prev,
+    .carousel-control-next {
+        width: 50px;
+        height: 50px;
+        background: rgba(255, 140, 0, 0.8);
+        border-radius: 50%;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    .carousel-indicators {
+        bottom: 20px;
+    }
+
+        .carousel-indicators [data-bs-target] {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            border: 2px solid white;
+        }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="row">
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">
+                @TempData["Success"]
+            </div>
+        }
+        <div class="col-12">
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="@Url.Action("Dashboard", "Dashboard", new { area = "Admin" })" class="text-decoration-none">
+                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="@Url.Action("AllRoomList", "RoomManager", new { area = "Admin" })" class="text-decoration-none">
+                            <i class="fas fa-bed me-1"></i>Quản Lý Phòng
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active">Chi Tiết Phòng @Model.RoomNumber</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Image Carousel & Edit Button -->
+        <div class="col-lg-6 mb-4">
+            @if (Model.RoomImages != null && Model.RoomImages.Any())
+            {
+                <div id="roomImageCarousel" class="carousel slide room-image-carousel" data-bs-ride="carousel">
+                    <div class="carousel-indicators">
+                        @for (int i = 0; i < Model.RoomImages.Count; i++)
+                        {
+                            <button type="button" data-bs-target="#roomImageCarousel" data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")" aria-current="@(i == 0 ? "true" : "false")" aria-label="Slide @(i + 1)"></button>
+                        }
+                    </div>
+                    <div class="carousel-inner">
+                        @{
+                            var imagesList = Model.RoomImages.ToList();
+                        }
+                        @for (int i = 0; i < imagesList.Count; i++)
+                        {
+                            <div class="carousel-item @(i == 0 ? "active" : "")">
+                                <img src="@Url.Content(imagesList[i].Path)" class="d-block w-100" alt="Room Image @(i + 1)" />
+                            </div>
+                        }
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#roomImageCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#roomImageCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            }
+            else
+            {
+                <div class="room-image-carousel d-flex align-items-center justify-content-center bg-light">
+                    <div class="text-center text-muted">
+                        <i class="fas fa-image fa-3x mb-3"></i>
+                        <p class="fs-5">Chưa có hình ảnh</p>
+                    </div>
+                </div>
+            }
+            <div class="mt-3 text-center">
+                @* <a href="@Url.Action("EditImages", "RoomManager", new { id = Model.Id, area = "Admin" })" class="btn btn-warning btn-admin me-2"><i class="fas fa-edit"></i> Chỉnh sửa hình ảnh</a> *@
+                <button class="btn btn-warning btn-admin me-2" data-bs-toggle="modal" data-bs-target="#editImagesModal">
+                    <i class="fas fa-edit"></i> Chỉnh sửa hình ảnh
+                </button>
+            </div>
+        </div>
+        <!-- Room Details & Actions -->
+        <div class="col-lg-6">
+            <div class="card admin-detail-card">
+                <div class="card-header admin-card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="mb-0">@Model.Name (@Model.Type)</h3>
+                        <span class="status-badge @(Model.Status == "Available" ? "status-available" : Model.Status == "Occupied" ? "status-occupied" : "status-maintenance")">
+                            @(RoomStatusHelper.GetRoomStatusName(Model.Status))
+                        </span>
+                    </div>
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Mã phòng:</span>
+                        <span class="info-value">@Model.Name</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Loại phòng:</span>
+                        <span class="info-value">@Model.Type</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Tầng:</span>
+                        <span class="info-value">@Model.FloorNumber</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Giá phòng:</span>
+                        <span class="info-value price-highlight">@Model.Price.ToString("N0") VNĐ/đêm</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Giới thiệu:</span>
+                        <span class="info-value">@Model.Introduce</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Mô tả:</span>
+                        <span class="info-value">@Model.Description</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">DAP:</span>
+                        <span class="info-value">@Model.DAP</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">MAP:</span>
+                        <span class="info-value">@Model.MAP</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Tiện ích:</span>
+                        <span class="info-value">@Model.Extension</span>
+                    </div>
+                </div>
+                <div class="admin-actions mt-3">
+                    <button type="submit" class="btn btn-info btn-admin me-2" data-bs-toggle="modal" data-bs-target="#statusModal"><i class="fas fa-sync-alt"></i> Đổi trạng thái</button>
+                    <a href="/Admin/BookingManager/Statistics" class="btn btn-primary btn-admin me-2"><i class="fas fa-chart-bar"></i> Xem báo cáo</a>
+                    <a href="@Url.Action("Update", "RoomManager", new { id = Model.Id, area = "Admin" })" class="btn btn-secondary btn-admin"><i class="fas fa-edit"></i> Chỉnh sửa thông tin</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status Change Modal -->
+<div class="modal fade" id="statusModal" tabindex="-1" aria-labelledby="statusModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form method="post" asp-action="ChangeRoomStatus" asp-controller="RoomManager" asp-area="Admin">
+            @Html.AntiForgeryToken()
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="statusModalLabel">
+                        <i class="fas fa-exchange-alt me-2"></i>Thay Đổi Trạng Thái Phòng
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="statusForm">
+                    <input type="hidden" name="roomId" value="@Model.Id" />
+                    <select name="action" class="form-select">
+                        <option value="1" selected="@(Model.Status == "Available")">Có Sẵn</option>
+                        <option value="2" selected="@(Model.Status == "Occupied")">Đã Thuê</option>
+                        <option value="3" selected="@(Model.Status == "Maintenance")">Bảo Trì</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-save me-2"></i>Lưu Thay Đổi
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Images Modal -->
+<div class="modal fade" id="editImagesModal" tabindex="-1" aria-labelledby="editImagesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <form method="post" enctype="multipart/form-data" asp-action="EditImages" asp-controller="RoomManager" asp-area="Admin">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="Id" value="@Model.Id" />
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="editImagesModalLabel">
+                        <i class="fas fa-images me-2"></i>Cập Nhật Hình Ảnh Phòng
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Chọn ảnh mới</label>
+                        <input type="file" id="imageUpload" name="NewImages" multiple accept="image/*" class="form-control" />
+                        <small class="text-muted">Bạn có thể chọn nhiều ảnh.</small>
+                    </div>
+
+                    <div id="newImagePreview" class="d-flex flex-wrap mt-2"></div>
+
+                    @if (Model.RoomImages != null && Model.RoomImages.Any())
+                    {
+                        <label class="form-label mt-3">Ảnh hiện tại:</label>
+                        <div id="existingImages" class="d-flex flex-wrap mt-2">
+                            @foreach (var img in Model.RoomImages)
+                            {
+                                <div class="image-wrapper position-relative me-2 mb-2" data-id="@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(img.Path))">
+                                    <img src="@Url.Content(img.Path)" style="width: 120px; height: 80px; object-fit: cover;" class="rounded shadow-sm" />
+                                    <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 btn-remove-existing" title="Xóa">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    <input type="hidden" name="ExistingImageIds" value="@img.Path" />
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Không có ảnh nào.</p>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-upload me-1"></i>Cập Nhật
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<script>
+    // Auto-play carousel
+    document.addEventListener('DOMContentLoaded', function () {
+        var carousel = new bootstrap.Carousel(document.querySelector('#roomImageCarousel'), {
+            interval: 5000,
+            wrap: true
+        });
+
+    });
+
+</script>
+
+
+<script>
+    const selectedFiles = [];
+    document.addEventListener("DOMContentLoaded", function () {
+        // -----------------------------------------------
+        document.getElementById('imageUpload').addEventListener('change', function (e) {
+            const preview = document.getElementById('newImagePreview');
+
+            Array.from(e.target.files).forEach((file) => {
+                const uniqueId = `${file.name}-${file.size}`;
+                if (selectedFiles.find(f => f && `${f.name}-${f.size}` === uniqueId)) return;
+
+                selectedFiles.push(file);
+
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    const div = document.createElement('div');
+                    div.classList.add('position-relative', 'me-2', 'mb-2');
+                    div.innerHTML = `
+                                                                               <img src="${event.target.result}" style="width: 120px; height: 80px; object-fit: cover;" class="rounded shadow-sm" />
+                                                                                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0" data-uniqueid="${uniqueId}">
+                                                                                    <i class="fas fa-times"></i>
+                                                                                </button>`;
+
+                    div.querySelector('button').addEventListener('click', function () {
+                        const id = this.getAttribute('data-uniqueid');
+                        const idx = selectedFiles.findIndex(f => f && `${f.name}-${f.size}` === id);
+                        if (idx !== -1) selectedFiles[idx] = null;
+                        div.remove();
+                    });
+
+                    preview.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+
+            this.value = '';
+        });
+
+        document.querySelectorAll('.btn-remove-existing').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const wrapper = this.closest('.image-wrapper');
+                const id = wrapper.dataset.id;
+
+                wrapper.remove();
+
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'DeletedImageIds';
+                input.value = id;
+
+                const form = document.querySelector('#editImagesModal form');
+                form.appendChild(input);
+            });
+        });
+
+        document.querySelector('#editImagesModal form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+
+            const formData = new FormData(this);
+
+            selectedFiles.forEach(file => {
+                if (file) {
+                    formData.append('NewImages', file);
+                }
+            });
+
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'RequestVerificationToken': this.querySelector('input[name="__RequestVerificationToken"]').value
+                }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        window.location.reload();
+                    } else {
+                        alert("Cập nhật thất bại.");
+                    }
+                });
+        });
+    });
+</script>

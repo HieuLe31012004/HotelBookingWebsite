@@ -1,0 +1,336 @@
+@model dynamic
+@{
+    ViewData["Title"] = "Thống kê đặt phòng";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-chart-bar mr-2"></i>
+                        Thống kê đặt phòng
+                    </h3>
+                    <div class="card-tools">
+                        <a href="@Url.Action("Index")" class="btn btn-sm btn-secondary">
+                            <i class="fas fa-arrow-left mr-1"></i>Quay lại
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row">
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-info">
+                <div class="inner">
+                    <h3>@Model.TodayBookings</h3>
+                    <p>Đặt phòng hôm nay</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-calendar-day"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-success">
+                <div class="inner">
+                    <h3>@Model.ThisMonthBookings</h3>
+                    <p>Đặt phòng tháng này</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-warning">
+                <div class="inner">
+                    <h3>@Model.PendingBookings</h3>
+                    <p>Chờ xác nhận</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-primary">
+                <div class="inner">
+                    <h3>@(Model.TotalRevenue != null ? Model.TotalRevenue.ToString("N0") : "0")₫</h3>
+                    <p>Tổng doanh thu</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Overview -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-pie mr-2"></i>Trạng thái đặt phòng</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="statusChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-line mr-2"></i>So sánh theo tháng</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <tr>
+                            <td><strong>Tháng này:</strong></td>
+                            <td class="text-right">
+                                <span class="badge bg-success text-white">@Model.ThisMonthBookings booking</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tháng trước:</strong></td>
+                            <td class="text-right">
+                                <span class="badge bg-info text-white">@Model.LastMonthBookings booking</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tăng/Giảm:</strong></td>
+                            <td class="text-right">
+                                @{
+                                    var change = Model.ThisMonthBookings - Model.LastMonthBookings;
+                                    var changePercent = Model.LastMonthBookings > 0 ? (change * 100.0 / Model.LastMonthBookings) : 0;
+                                }
+                                @if (change > 0)
+                                {
+                                    <span class="badge bg-success text-white">
+                                        <i class="fas fa-arrow-up"></i> +@change (@changePercent.ToString("F1")%)
+                                    </span>
+                                }
+                                else if (change < 0)
+                                {
+                                    <span class="badge bg-danger text-white">
+                                        <i class="fas fa-arrow-down"></i> @change (@changePercent.ToString("F1")%)
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary text-white">
+                                        <i class="fas fa-minus"></i> Không đổi
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Statistics -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-list mr-2"></i>Chi tiết thống kê</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-warning">
+                                    <i class="fas fa-clock"></i>
+                                </span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Chờ xác nhận</span>
+                                    <span class="info-box-number">@Model.PendingBookings</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-primary">
+                                    <i class="fas fa-check"></i>
+                                </span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Đã xác nhận</span>
+                                    <span class="info-box-number">@Model.ConfirmedBookings</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-success">
+                                    <i class="fas fa-flag-checkered"></i>
+                                </span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Hoàn thành</span>
+                                    <span class="info-box-number">@Model.CompletedBookings</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-danger">
+                                    <i class="fas fa-times"></i>
+                                </span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Đã hủy</span>
+                                    <span class="info-box-number">@Model.CancelledBookings</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Status Pie Chart
+        var ctx = document.getElementById('statusChart').getContext('2d');
+        var statusChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Chờ xác nhận', 'Đã xác nhận', 'Hoàn thành', 'Đã hủy'],
+                datasets: [{
+                    data: [@Model.PendingBookings, @Model.ConfirmedBookings, @Model.CompletedBookings, @Model.CancelledBookings],
+                    backgroundColor: [
+                        '#ffc107',
+                        '#007bff', 
+                        '#28a745',
+                        '#dc3545'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                legend: {
+                    position: 'bottom'
+                },
+                tooltips: {
+                    callbacks: {
+                        label: function(tooltipItem, data) {
+                            var label = data.labels[tooltipItem.index];
+                            var value = data.datasets[0].data[tooltipItem.index];
+                            var total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                            var percentage = ((value / total) * 100).toFixed(1);
+                            return label + ': ' + value + ' (' + percentage + '%)';
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}
+
+<style>
+    .small-box {
+        border-radius: 0.25rem;
+        box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
+        display: block;
+        margin-bottom: 20px;
+        position: relative;
+    }
+
+    .small-box > .inner {
+        padding: 10px;
+    }
+
+    .small-box > .small-box-footer {
+        position: relative;
+        text-align: center;
+        padding: 3px 0;
+        color: #fff;
+        color: rgba(255,255,255,.8);
+        display: block;
+        z-index: 10;
+        background: rgba(0,0,0,.1);
+        text-decoration: none;
+    }
+
+    .small-box .icon {
+        transition: all .3s linear;
+        position: absolute;
+        top: -10px;
+        right: 10px;
+        z-index: 0;
+        font-size: 90px;
+        color: rgba(0,0,0,.15);
+    }
+
+    .small-box h3 {
+        font-size: 2.2rem;
+        font-weight: bold;
+        margin: 0 0 10px 0;
+        white-space: nowrap;
+        padding: 0;
+        color: #fff;
+    }
+
+    .small-box p {
+        font-size: 1rem;
+        color: #fff;
+        color: rgba(255,255,255,.8);
+        margin: 0;
+    }
+
+    .info-box {
+        display: flex;
+        background: #fff;
+        box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
+        border-radius: .25rem;
+        margin-bottom: 1rem;
+    }
+
+    .info-box-icon {
+        border-radius: .25rem 0 0 .25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 70px;
+        color: #fff;
+        font-size: 1.875rem;
+    }
+
+    .info-box-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: .5rem;
+        line-height: 1.8;
+    }
+
+    .info-box-text {
+        display: block;
+        font-size: .875rem;
+        color: #6c757d;
+    }
+
+    .info-box-number {
+        display: block;
+        font-weight: 700;
+        font-size: 1.125rem;
+    }
+</style>

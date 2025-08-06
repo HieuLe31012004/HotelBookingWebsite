@@ -1,0 +1,268 @@
+@{
+    ViewData["Title"] = "Momo Debug";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-xxl py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="mb-4">
+                    <i class="fas fa-bug me-2"></i>Momo Payment Debug
+                </h2>
+                
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        @TempData["Error"]
+                    </div>
+                }
+                
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        @TempData["Success"]
+                    </div>
+                }
+                
+                <!-- Configuration Info -->
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-cog me-2"></i>Cấu hình Momo
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <strong>API URL:</strong>
+                                        <span class="text-muted">@ViewBag.MomoApiUrl</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <strong>Partner Code:</strong>
+                                        <span class="text-muted">@ViewBag.PartnerCode</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <strong>Request Type:</strong>
+                                        <span class="text-muted">@ViewBag.RequestType</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <strong>Return URL:</strong>
+                                        <span class="text-muted text-break">@ViewBag.ReturnUrl</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <strong>Access Key:</strong>
+                                        <span class="badge @(ViewBag.HasAccessKey ? "bg-success" : "bg-danger")">
+                                            @(ViewBag.HasAccessKey ? "Configured" : "Missing")
+                                        </span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <strong>Secret Key:</strong>
+                                        <span class="badge @(ViewBag.HasSecretKey ? "bg-success" : "bg-danger")">
+                                            @(ViewBag.HasSecretKey ? "Configured" : "Missing")
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Environment Info -->
+                <div class="card mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Thông tin môi trường
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        @{
+                            var debugInfo = ViewBag.DebugInfo;
+                        }
+                        <div class="row">
+                            <div class="col-md-12">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <strong>Environment:</strong>
+                                        <span class="badge @(debugInfo.IsLocalhost ? "bg-warning" : "bg-success")">
+                                            @(debugInfo.IsLocalhost ? "Development (localhost)" : "Production")
+                                        </span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <strong>Current URL:</strong>
+                                        <span class="text-muted">@debugInfo.CurrentUrl</span>
+                                    </li>
+                                </ul>
+                                
+                                @if (debugInfo.IsLocalhost)
+                                {
+                                    <div class="alert alert-warning mt-3">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        <strong>Lưu ý:</strong> Bạn đang chạy trên localhost. Momo sandbox cần URL public để gửi callback. 
+                                        Có thể sử dụng ngrok hoặc tương tự để tạo public URL.
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Test Payment -->
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-credit-card me-2"></i>Test Thanh toán
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="TestMomoPayment" method="post">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="amount" class="form-label">Số tiền (VND)</label>
+                                        <input type="number" id="amount" name="amount" class="form-control" 
+                                               value="50000" min="1000" max="50000000" step="1000">
+                                        <div class="form-text">Nhập số tiền từ 1,000 VND đến 50,000,000 VND</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 d-flex align-items-end">
+                                    <div class="mb-3">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-rocket me-2"></i>Test Thanh toán Momo
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        
+                        <hr>
+                        
+                        <div class="row">
+                            <div class="col-12">
+                                <h6>Hướng dẫn test:</h6>
+                                <ol class="text-muted">
+                                    <li>Click "Test Thanh toán Momo" để tạo payment URL</li>
+                                    <li>Nếu thành công, bạn sẽ được redirect đến trang thanh toán Momo</li>
+                                    <li>Sử dụng thông tin test của Momo để hoàn tất thanh toán</li>
+                                    <li>Kiểm tra callback trong console logs</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-format amount input
+        $(document).ready(function() {
+            $('#amount').on('input', function() {
+                let value = $(this).val().replace(/\D/g, '');
+                if (value) {
+                    $(this).val(parseInt(value));
+                }
+            });
+        });
+    </script>
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h4><i class="fas fa-bug"></i> Momo Payment Debug Information</h4>
+                </div>
+                <div class="card-body">
+                    <h5>Request Parameters:</h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Context.Request.Query.Any())
+                                {
+                                    @foreach (var param in Context.Request.Query)
+                                    {
+                                        <tr>
+                                            <td><strong>@param.Key</strong></td>
+                                            <td>@param.Value</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="2" class="text-center">No parameters received</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <hr>
+                    
+                    <h5>Momo UAT Testing Guide:</h5>
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle"></i> Test Credentials for Momo UAT:</h6>
+                        <ul>
+                            <li><strong>Test Phone:</strong> 0963181714</li>
+                            <li><strong>OTP:</strong> 000000 (6 zeros)</li>
+                            <li><strong>PIN:</strong> 111111 (6 ones)</li>
+                        </ul>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <h6><i class="fas fa-exclamation-triangle"></i> Common Issues:</h6>
+                        <ul>
+                            <li>Make sure URL endpoints are accessible from internet (use ngrok for localhost)</li>
+                            <li>Check signature generation matches Momo requirements</li>
+                            <li>Verify API endpoint URLs are correct for UAT environment</li>
+                            <li>Ensure amount is in VND (Vietnamese Dong)</li>
+                        </ul>
+                    </div>
+
+                    <div class="alert alert-success">
+                        <h6><i class="fas fa-check-circle"></i> Current Configuration:</h6>
+                        <ul>
+                            <li><strong>API URL:</strong> @ViewBag.MomoApiUrl</li>
+                            <li><strong>Partner Code:</strong> @ViewBag.PartnerCode</li>
+                            <li><strong>Request Type:</strong> @ViewBag.RequestType</li>
+                            <li><strong>Return URL:</strong> @ViewBag.ReturnUrl</li>
+                        </ul>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <form asp-action="TestMomoPayment" method="post" class="d-inline">
+                            <input type="hidden" name="amount" value="50000" />
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fab fa-mdb"></i> Test Momo Payment (50,000 VND)
+                            </button>
+                        </form>
+                        <a href="@Url.Action("Index", "Home")" class="btn btn-primary">
+                            <i class="fas fa-home"></i> Back to Home
+                        </a>
+                        <a href="@Url.Action("Booking", "Booking")" class="btn btn-secondary">
+                            <i class="fas fa-calendar"></i> Try Booking Again
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

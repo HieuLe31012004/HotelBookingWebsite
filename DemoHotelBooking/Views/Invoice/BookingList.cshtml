@@ -1,0 +1,56 @@
+﻿@model IEnumerable<DemoHotelBooking.ViewModels.BookingView>
+
+@{
+    ViewData["Title"] = "BookingList";
+    
+}
+
+<h1>Danh sách đặt phòng</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Khách hàng
+            </th>
+            <th>
+                Số điện thoại
+            </th>
+            <th>
+                Ngày nhận phòng
+            </th>
+            <th>
+                Ngày trả phòng
+            </th>
+            <th>
+                Trạng thái
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Booking.Customer.FullName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Booking.Customer.PhoneNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Booking.CheckinDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Booking.CheckoutDate)
+                </td>
+                <td class="@item.StatusColor">
+                    @Html.DisplayFor(modelItem => item.Status)
+                </td>
+                <td>
+                    <a asp-action="BookingDetails" asp-route-id="@item.Booking.Id">Xem chi tiết</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

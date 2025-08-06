@@ -1,0 +1,182 @@
+﻿@using Newtonsoft.Json
+@using DemoHotelBooking.Models
+@model IEnumerable<DemoHotelBooking.Models.Room>
+@{
+    var list = Model?.ToList() ?? new List<DemoHotelBooking.Models.Room>();
+    double basePrice = 0;
+    double memberDiscount = 0;
+    double vat = 0;
+    double finalPrice = 0;
+    double deposit = 0;
+    int numberOfNights = 1;
+    int numberOfRooms = list.Count;
+    
+    // Lấy booking data từ ViewData thay vì session
+    var currentBookingData = ViewData["currentBooking"] as DemoHotelBooking.ViewModels.BookingViewModel;
+    if (currentBookingData != null)
+    {
+        basePrice = currentBookingData.BasePrice;
+        memberDiscount = currentBookingData.MemberDiscount;
+        vat = currentBookingData.VAT;
+        finalPrice = currentBookingData.FinalPrice;
+        deposit = currentBookingData.Deposit ?? 0; // Only Deposit is nullable
+        numberOfNights = currentBookingData.NumberOfNights > 0 ? currentBookingData.NumberOfNights : 1;
+        numberOfRooms = currentBookingData.NumberOfRooms > 0 ? currentBookingData.NumberOfRooms : list.Count;
+    }
+    else if (list.Any())
+    {
+        // Fallback calculation nếu chưa có booking data
+        numberOfRooms = list.Count;
+        numberOfNights = 1; // Mặc định 1 đêm
+        basePrice = list.Sum(i => i.Price) * numberOfNights;
+        if (User.Identity.IsAuthenticated)
+        {
+            memberDiscount = basePrice * 0.02;
+        }
+        double priceAfterDiscount = basePrice - memberDiscount;
+        vat = priceAfterDiscount * 0.08;
+        finalPrice = priceAfterDiscount + vat;
+        deposit = finalPrice * 0.2;
+    }
+}
+
+<style>
+    .table th {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+    }
+    
+    .badge {
+        font-size: 0.8em;
+        padding: 0.4em 0.8em;
+        border-radius: 12px;
+    }
+    
+    .pricing-details {
+        font-size: 1.05em;
+    }
+    
+    .card-header h5 {
+        margin: 0;
+        font-weight: 600;
+    }
+    
+    .removeRoomButton:hover {
+        background-color: #c82333;
+        transform: scale(1.05);
+        transition: all 0.2s ease;
+    }
+</style>
+
+<div class="text-center wow fadeInUp" data-wow-delay="0.1s" style="visibility: visible; animation-delay: 0.1s; animation-name: fadeInUp;">
+    <h1>Phòng đã chọn</h1>
+</div>
+
+@if (list.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>@Html.DisplayNameFor(model => model.Name)</th>
+                <th>@Html.DisplayNameFor(model => model.Type)</th>
+                <th>@Html.DisplayNameFor(model => model.FloorNumber)</th>
+                <th>Trạng thái</th>
+                <th>@Html.DisplayNameFor(model => model.Price)</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Type)</td>
+                    <td>@Html.DisplayFor(modelItem => item.FloorNumber)</td>
+                    <td>
+                        @{
+                            string statusText = "";
+                            string statusClass = "";
+                            switch (item.Status)
+                            {
+                                case "Available":
+                                    statusText = "Trống";
+                                    statusClass = "badge bg-success";
+                                    break;
+                                case "Occupied":
+                                    statusText = "Đã đặt";
+                                    statusClass = "badge bg-warning text-dark";
+                                    break;
+                                case "Maintenance":
+                                    statusText = "Bảo trì";
+                                    statusClass = "badge bg-secondary";
+                                    break;
+                                default:
+                                    statusText = "Không có sẵn";
+                                    statusClass = "badge bg-secondary";
+                                    break;
+                            }
+                        }
+                        <span class="@statusClass">@statusText</span>
+                    </td>
+                    <td>@string.Format("{0:#,0}₫", item.Price)</td>
+                    <td>
+                        <button class="removeRoomButton btn btn-danger btn-sm" data-room-id="@item.Id">Hủy</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <!-- Chi tiết giá -->
+    <div class="card mt-3">
+        <div class="card-header" style="background-color: #f39c12; color: white;">
+            <h5 class="mb-0">Giá Chi Tiết</h5>
+        </div>
+        <div class="card-body">
+            <div class="pricing-details">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>@numberOfRooms phòng × @numberOfNights đêm:</span>
+                    <span class="fw-bold">@string.Format("{0:#,0}₫", basePrice)</span>
+                </div>
+                
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Giá trước khi giảm:</span>
+                    <span>@string.Format("{0:#,0}₫", basePrice)</span>
+                </div>
+                
+                @if (memberDiscount > 0)
+                {
+                    <div class="d-flex justify-content-between mb-2 text-success">
+                        <span>Ưu đãi dành cho thành viên:</span>
+                        <span>-@string.Format("{0:#,0}₫", memberDiscount)</span>
+                    </div>
+                }
+                
+                <div class="d-flex justify-content-between mb-2">
+                    <span>VAT (8%):</span>
+                    <span>@string.Format("{0:#,0}₫", vat)</span>
+                </div>
+                
+                <hr>
+                
+                <div class="d-flex justify-content-between mb-3">
+                    <strong>Tổng cộng:</strong>
+                    <strong class="text-danger">@string.Format("{0:#,0}₫", finalPrice)</strong>
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                    <strong>Cần đặt cọc (20%):</strong>
+                    <strong class="text-primary">@string.Format("{0:#,0}₫", deposit)</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info text-center">
+        <h5>Chưa chọn phòng nào</h5>
+        <p>Vui lòng chọn phòng từ danh sách bên dưới</p>
+    </div>
+}

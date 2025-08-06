@@ -1,0 +1,310 @@
+﻿@model DemoHotelBooking.ViewModels.RoomViewModel
+
+@{
+    ViewData["Title"] = "Create";
+
+}
+<h1>Thêm phòng</h1>
+
+<h4 class="text-danger">@ViewBag.Error</h4>
+<hr />
+
+<div class="container">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="row">
+        <div class="col-md-12">
+            <form asp-action="Create" enctype="multipart/form-data" id="createForm">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <!-- Image Upload Section -->
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="form-group mb-3">
+                            <label class="form-label">Hình ảnh phòng</label>
+                            <input type="file" id="imageUpload" name="images" multiple accept="image/*" class="form-control" />
+                            <div id="imagePreview" class="d-flex flex-wrap mt-2"></div>
+                            <small class="form-text text-muted">Chọn nhiều ảnh để hiển thị cho phòng này.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Room Information Section -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label">Mã phòng</label>
+                            <div class="input-group">
+                                <span class="input-group-text" id="roomTypePrefix">STD</span>
+                                <input type="text" class="form-control" id="Name" name="Name" maxlength="7" placeholder="Nhập mã phòng, ví dụ: STD101" required />
+                            </div>
+                            <small class="form-text text-muted">Nhập mã phòng gồm tiền tố in hoa (STD, SUP, DLX, SUT) + số phòng, ví dụ: STD101.</small>
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="form-label">Loại phòng</label>
+                            <select class="form-select" id="RoomType" name="Type" required>
+                                <option value="Standard">Standard</option>
+                                <option value="Superior">Superior</option>
+                                <option value="Deluxe">Deluxe</option>
+                                <option value="Suite">Suite</option>
+                            </select>
+                            <span asp-validation-for="Type" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label asp-for="FloorNumber" class="form-label"></label>
+                            <input asp-for="FloorNumber" name="FloorNumber" class="form-control" />
+                            <span asp-validation-for="FloorNumber" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="form-label">Giá phòng</label>
+                            <input type="number" class="form-control" id="RoomPrice" name="Price" min="100000" required />
+                            <span asp-validation-for="Price" class="text-danger"></span>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="DAP" class="form-label"></label>
+                                    <input asp-for="DAP" name="DAP" class="form-control" id="DAP" min="0" required placeholder="Số người quy định (>= 0)" />
+                                    <span asp-validation-for="DAP" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="MAP" class="form-label"></label>
+                                    <input asp-for="MAP" name="MAP" class="form-control" id="MAP" min="0" required placeholder="Số người tối đa (>= số người quy định)" />
+                                    <span asp-validation-for="MAP" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="Introduce" class="form-label"></label>
+                            <textarea asp-for="Introduce" name="Introduce" class="form-control" rows="6"></textarea>
+                            <span asp-validation-for="Introduce" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label asp-for="Description" class="form-label"></label>
+                            <textarea asp-for="Description" name="Description" class="form-control" rows="6"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+                        <div class="form-group  mb-3">
+                            <label>Tiện ích phòng</label><br />
+                            @foreach (var item in (List<SelectListItem>)ViewBag.ExtensionsList)
+                            {
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox"
+                                           name="SelectedExtensions" value="@item.Value"
+                                           @(Model.Extension != null && Model.Extension.Contains(item.Value) ? "checked" : "") />
+                                    <label class="form-check-label">@item.Text</label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="row">
+                    <div class="col-12 text-end">
+                        <input type="submit" value="Tạo phòng" class="btn btn-primary me-2" />
+                        <a asp-area="Admin" asp-action="AllRoomList" asp-controller="RoomManager" class="btn btn-secondary">Quay lại danh sách</a>
+                    </div>
+                    <!-- Hidden fields for final room name and price -->
+                    <input type="hidden" name="Name" id="RoomNameFinal" />
+                    <input type="hidden" name="Price" id="RoomPriceFinal" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+            // Image preview logic
+            document.getElementById('imageUpload').addEventListener('change', function (event) {
+                const preview = document.getElementById('imagePreview');
+                preview.innerHTML = '';
+                const files = event.target.files;
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const div = document.createElement('div');
+                        div.className = 'image-container me-2 mb-2';
+                        div.style.width = '100px';
+                        div.style.height = '80px';
+                        div.innerHTML = <img src='${e.target.result}' class='preview-image' style='width:100%;height:100%;object-fit:cover;'><button type='button' class='btn btn-danger btn-sm image-overlay' style='position:absolute;top:4px;right:4px;' onclick='removeImage(this)'>X</button>;
+                        preview.appendChild(div);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            function removeImage(button) {
+                const container = button.parentElement;
+                container.remove();
+            }
+            // Room type and price logic
+            const roomTypePrices = {
+                'Standard': 550000,
+                'Superior': 750000,
+                'Deluxe': 950000,
+                'Suite': 1200000
+            };
+            // Map loại phòng sang tiền tố mã phòng
+            const typeToPrefix = {
+                'Standard': 'STD',
+                'Superior': 'SUP',
+                'Deluxe': 'DLX',
+                'Suite': 'SUT'
+            };
+            function updateRoomTypeFields() {
+                const type = document.getElementById('RoomType').value;
+                document.getElementById('roomTypePrefix').textContent = typeToPrefix[type];
+                document.getElementById('RoomPrice').value = roomTypePrices[type].toLocaleString('vi-VN') + ' VNĐ';
+            }
+            document.getElementById('RoomType').addEventListener('change', updateRoomTypeFields);
+            // Set initial price and prefix
+            updateRoomTypeFields();
+            // Form validation and final room number
+            document.getElementById('createForm').addEventListener('submit', async function (e) {
+                // Validate mã phòng phải bắt đầu bằng đúng tiền tố loại phòng
+                const type = document.getElementById('RoomType').value;
+                const prefix = typeToPrefix[type];
+                const suffix = document.getElementById('Name').value.trim();
+                if (!suffix) {
+                    alert('Mã phòng không được để trống.');
+                    e.preventDefault();
+                    return;
+                }
+                if (suffix.length > 7) {
+                    alert('Mã phòng không được vượt quá 7 ký tự.');
+                    e.preventDefault();
+                    return;
+                }
+                const fullRoomName = prefix + suffix;
+                if (!/^([A-Z]{3})\d{1,4}$/.test(fullRoomName) || fullRoomName.length >= 6) {
+                    alert('Mã phòng phải đúng định dạng: Tiền tố in hoa (STD, SUP, DLX, SUT) + số, tối đa 7 ký tự.');
+                    e.preventDefault();
+                    return;
+                }
+                // Kiểm tra tiền tố khớp loại phòng
+                if (!fullRoomName.startsWith(prefix)) {
+                    alert('Tiền tố mã phòng phải khớp với loại phòng đã chọn!');
+                    e.preventDefault();
+                    return;
+                }
+                // Kiểm tra mã phòng trùng (gọi API hoặc kiểm tra trên client nếu có danh sách)
+                let isDuplicate = false;
+                try {
+                    const res = await fetch('/Admin/RoomManager/CheckRoomCode?name=' + encodeURIComponent(fullRoomName));
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.exists) isDuplicate = true;
+                    }
+                } catch {}
+                if (isDuplicate) {
+                    alert('Mã phòng đã tồn tại!');
+                    e.preventDefault();
+                    return;
+                }
+                const fileInput = document.getElementById('imageUpload');
+                if (fileInput.files.length === 0) {
+                    if (!confirm('Bạn chưa chọn ảnh nào. Bạn có muốn tiếp tục tạo phòng không?')) {
+                        e.preventDefault();
+                        return;
+                    }
+                }
+
+                // Validate giá phòng > 0
+                const priceInput = document.getElementById('RoomPrice');
+                let priceValue = priceInput.value;
+                if (typeof priceValue === 'string') {
+                    priceValue = priceValue.replace(/[^\d]/g, ''); // loại bỏ ký tự không phải số
+                }
+                priceValue = parseInt(priceValue);
+                if (isNaN(priceValue) || priceValue <= 0) {
+                    alert('Giá phòng phải lớn hơn 0.');
+                    e.preventDefault();
+                    return;
+                }
+
+                // Validate lầu >= 1
+                const floorInput = document.querySelector('[name="FloorNumber"]');
+                let floorValue = floorInput ? parseInt(floorInput.value) : NaN;
+                if (isNaN(floorValue) || floorValue < 1) {
+                    alert('Số lầu phải lớn hơn hoặc bằng 1.');
+                    e.preventDefault();
+                    return;
+                }
+
+                // Validate số người
+                const dapInput = document.getElementById('DAP');
+                const mapInput = document.getElementById('MAP');
+                const dap = dapInput ? parseInt(dapInput.value) : NaN;
+                const map = mapInput ? parseInt(mapInput.value) : NaN;
+
+                if (isNaN(dap) || isNaN(map)) {
+                    alert("Vui lòng nhập đầy đủ số người.");
+                    e.preventDefault();
+                    return;
+                }
+                if (map < dap) {
+                    alert("Số người tối đa (MAP) phải lớn hơn hoặc bằng số người quy định (DAP).");
+                    e.preventDefault();
+                    return;
+                }
+                if (dap < 0 || map < 0) {
+                    alert("Số người không được là số âm.");
+                    e.preventDefault();
+                    return;
+                }
+
+                // Validate mã phòng không được null hoặc rỗng
+                const prefix = document.getElementById('RoomType').value;
+                const suffix = document.getElementById('Name').value;
+                if (suffix === null || suffix.trim() === "") {
+                    alert('Mã phòng không được để trống.');
+                    e.preventDefault();
+                    return;
+                }
+                document.getElementById('RoomNameFinal').value = fullRoomName;
+                document.getElementById('RoomPriceFinal').value = roomTypePrices[type];
+        // AJAX endpoint kiểm tra mã phòng trùng
+        // Thêm vào controller:
+        // [HttpGet]
+        // public IActionResult CheckRoomCode(string name) {
+        //     var exists = _context.Rooms.Any(r => r.Name == name);
+        //     return Json(new { exists });
+        // }
+            });
+    </script>
+    <style>
+        .image-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+
+        .preview-image {
+            transition: transform 0.3s ease;
+        }
+
+        .image-container:hover .preview-image {
+            transform: scale(1.05);
+        }
+
+        .image-overlay {
+            transition: opacity 0.3s ease;
+        }
+
+        .image-container:hover .image-overlay {
+            opacity: 0.9;
+        }
+
+        .btn-danger {
+            opacity: 0.8;
+        }
+
+            .btn-danger:hover {
+                opacity: 1;
+            }
+    </style>
+}

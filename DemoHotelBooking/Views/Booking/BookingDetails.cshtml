@@ -1,0 +1,192 @@
+﻿@model DemoHotelBooking.ViewModels.BookingView
+
+@{
+    ViewData["Title"] = "Chi tiết đặt phòng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <!-- Flash Messages -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-12">
+            <div class="bg-light p-5 mb-4">
+                <h1 class="display-4">Chi tiết đặt phòng #@Model.Booking.Id</h1>
+                <p class="lead">Thông tin chi tiết về đặt phòng của bạn</p>
+                <a asp-action="History" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left"></i> Quay lại lịch sử
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary-custom text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle"></i> Thông tin đặt phòng
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <strong>Mã đặt phòng:</strong>
+                            <span class="text-primary">#@Model.Booking.Id</span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Ngày đặt:</strong>
+                            <span>@Model.Booking.CreateDate.ToString("dd/MM/yyyy HH:mm")</span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Ngày nhận phòng:</strong>
+                            <span>@Model.Booking.CheckinDate.ToString("dd/MM/yyyy")</span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Ngày trả phòng:</strong>
+                            <span>@Model.Booking.CheckoutDate.ToString("dd/MM/yyyy")</span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Hình thức thanh toán:</strong>
+                            <span class="badge @(Model.Booking.PaymentMethod == 0 ? "bg-success" : "bg-info")">
+                                @(Model.Booking.PaymentMethod == 0 ? "Tiền mặt" : "MoMo")
+                            </span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Trạng thái:</strong>
+                            <span class="badge fs-6" style="color: black">
+                                @(Model.Booking.Status == 0 ? "Đến nhận phòng" :
+                                    Model.Booking.Status == 1 ? "Đang chờ hủy phòng" :
+                                    Model.Booking.Status == 2 ? "Đã nhận phòng" :
+                                    Model.Booking.Status == 4 ? "Đã hủy" : "Hoàn thành")
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Room Details -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-bed"></i> Phòng đã đặt
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        @if (Model.Rooms?.Any() == true)
+                        {
+                            @foreach (var room in Model.Rooms)
+                            {
+                                <div class="col-md-6 mb-3">
+                                    <div class="border rounded p-3">
+                                        <h6 class="text-primary">@room.Room.Name</h6>
+                                        <p class="mb-1"><strong>Loại:</strong> @room.Room.Type</p>
+                                        <p class="mb-1"><strong>Giá:</strong> @room.Room.Price.ToString("N0") VNĐ/đêm</p>
+                                        <p class="mb-0"><strong>Mô tả:</strong> @room.Room.Description</p>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="col-12">
+                                <p class="text-muted">Không có thông tin phòng</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- Summary Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-calculator"></i> Tổng quan thanh toán
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Tiền đặt cọc:</span>
+                        <strong class="text-success">@(((decimal)Model.Booking.Deposit).ToString("N0")) VNĐ</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Tổng tiền:</span>
+                        <strong class="text-primary h5">@((Model.Booking.TotalPrice ?? 0).ToString("N0")) VNĐ</strong>
+                    </div>
+                    <hr>
+                    @if (Model.Booking.Status == 2 || Model.Booking.Status == 3)
+                    {
+                        <div class="d-flex justify-content-between">
+                            <span>Thanh toán:</span>
+                            <strong class="text-success">Đã thanh toán đầy đủ</strong>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="d-flex justify-content-between">
+                            <span>Còn lại:</span>
+                            <strong class="text-warning">@(((Model.Booking.TotalPrice ?? 0) - (decimal)Model.Booking.Deposit).ToString("N0")) VNĐ</strong>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Actions -->
+            @if (Model.Booking.Status == 0)
+            {
+                <div class="card shadow-sm">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-times-circle"></i> Hành động
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3">Bạn có thể hủy đặt phòng nếu chưa nhận phòng</p>
+                        <button type="button" class="btn btn-danger w-100" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                            <i class="fas fa-times"></i> Hủy đặt phòng
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Confirmation Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận hủy đặt phòng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn hủy đặt phòng này không?</p>
+                <p class="text-warning"><strong>Lưu ý:</strong> Việc hủy đặt phòng có thể ảnh hưởng đến chính sách hoàn tiền.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Không</button>
+                <a href="@Url.Action("CancelBooking", "Booking", new { id = Model.Booking.Id })" class="btn btn-danger">
+                    Có, hủy đặt phòng
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

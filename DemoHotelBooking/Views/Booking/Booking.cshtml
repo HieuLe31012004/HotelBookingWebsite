@@ -1,0 +1,412 @@
+﻿@model DemoHotelBooking.ViewModels.BookingViewModel
+
+@{
+    ViewData["Title"] = "Booking";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var rooms = ViewData["availbleRooms"] as List<DemoHotelBooking.Models.Room>;
+    var bookings = ViewData["bookingRooms"] as List<DemoHotelBooking.Models.Room>;
+    var message = ViewBag.Error;
+}
+@if (!string.IsNullOrEmpty(message))
+{
+    <div id="statusAlert" class="alert alert-warning alert-dismissible fade show" role="alert" style="text-align:center">
+        @message
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+<hr />
+<div class="container">
+    <div class="text-center wow fadeInUp" data-wow-delay="0.1s" style="visibility: visible; animation-delay: 0.1s; animation-name: fadeInUp;">
+        <h6 class="section-title text-center text-primary text-uppercase">Room Booking</h6>
+        <h1 class="mb-5">Book A <span class="text-primary text-uppercase">Luxury Room</span></h1>
+    </div>
+    <div class="row g-5">
+        <div class="col-lg-6">
+            <div id="roomListContainer">
+                @await Html.PartialAsync("BookingRooms", bookings)
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="text-center wow fadeInUp" data-wow-delay="0.1s" style="visibility: visible; animation-delay: 0.1s; animation-name: fadeInUp;">
+                <h1>Booking</h1>
+            </div>
+            <div class="wow fadeInUp" data-wow-delay="0.2s" style="visibility: visible; animation-delay: 0.2s; animation-name: fadeInUp;">
+                <form asp-action="Booking" id="bookingForm">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="row g-3">
+                        @if (!User.Identity.IsAuthenticated)
+                        {
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input asp-for="Name" type="text" class="form-control" id="name" placeholder="Your Name" required>
+                                    <label for="name">Họ và tên</label>
+                                    <div class="invalid-feedback" id="nameError"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input asp-for="Phone" type="text" class="form-control" id="phone" placeholder="Your Phone" required>
+                                    <label for="phone">Số Điện Thoại</label>
+                                    <div class="invalid-feedback" id="phoneError"></div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <input type="hidden" asp-for="Phone" class="form-control" />
+                            <input type="hidden" asp-for="Name" class="form-control" />
+                        }
+                        <div class="col-12">
+                            <div class="form-floating">                                                              
+                                <input hidden disabled="disabled" asp-for="Deposit" class="form-control" />                               
+                            </div>
+                        </div>
+                        <!--Time-->
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="datetime-local" class="form-control" name="CheckinDate" id="CheckInDate" placeholder="Check In" required>
+                                <label class="control-label" for="CheckInDate">Ngày nhận phòng</label>
+                                <span asp-validation-for="CheckinDate" class="text-danger"></span>
+                            </div>
+                        </div>    
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="datetime-local" name="CheckoutDate" class="form-control" id="CheckOutDate" placeholder="Check Out" required>
+                                <label asp-for="CheckoutDate" class="control-label" for="CheckOutDate">Ngày trả</label>
+                                <span asp-validation-for="CheckoutDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <!---->
+                        <div class="col-12">
+                            <div class="form-floating">                              
+                                <input hidden disabled="disabled" asp-for="Amount" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <input type="submit" value="Xác nhận" class="btn btn-primary w-100 py-3" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="availbleRoomList">
+    @await Html.PartialAsync("ListRoomAvailble", rooms)
+</div>
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Vô hiệu hóa auto-initialization của Tempus Dominus -->
+    <script>
+        // Ngăn chặn Tempus Dominus tự động khởi tạo
+        $(document).off('click.bs.datetimepicker.data-api focus.bs.datetimepicker.data-api');
+    </script>
+    
+    <style>
+        .pricing-details {
+            font-size: 14px;
+        }
+        .pricing-details .fw-bold {
+            font-weight: bold !important;
+        }
+        .card-header {
+            border-bottom: 1px solid #dee2e6;
+        }
+        .text-success {
+            color: #28a745 !important;
+        }
+        .text-danger {
+            color: #dc3545 !important;
+        }
+        .text-primary {
+            color: #007bff !important;
+        }
+        
+        /* Validation styles */
+        .is-invalid {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+        
+        .invalid-feedback {
+            display: block;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+            color: #dc3545;
+        }
+        
+        .validation-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border: 2px solid #dc3545;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 9999;
+            min-width: 300px;
+            text-align: center;
+        }
+        
+        .validation-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9998;
+        }
+    </style>
+    
+    <!--AJAX-->
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // Validation functions
+            function validateName(name) {
+                // Chỉ cho phép chữ cái, dấu cách, và các ký tự tiếng Việt
+                const nameRegex = /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵýỷỹ\s]+$/;
+                if (!name || name.trim().length < 2) {
+                    return "Tên phải có ít nhất 2 ký tự";
+                }
+                if (!nameRegex.test(name.trim())) {
+                    return "Tên chỉ được chứa chữ cái và dấu cách";
+                }
+                if (name.trim().length > 50) {
+                    return "Tên không được quá 50 ký tự";
+                }
+                return null;
+            }
+            
+            function validatePhone(phone) {
+                // Chỉ cho phép số điện thoại Việt Nam
+                const phoneRegex = /^(0|84|\+84)([3-9])([0-9]{8})$/;
+                const cleanPhone = phone.replace(/[\s\-\(\)]/g, ''); // Loại bỏ dấu cách, gạch ngang, ngoặc đơn
+                
+                if (!phone || phone.trim().length === 0) {
+                    return "Số điện thoại không được để trống";
+                }
+                if (!/^[0-9+\s\-\(\)]+$/.test(phone)) {
+                    return "Số điện thoại chỉ được chứa số, dấu +, dấu cách, gạch ngang và dấu ngoặc đơn";
+                }
+                if (!phoneRegex.test(cleanPhone)) {
+                    return "Số điện thoại không đúng định dạng (VD: 0901234567 hoặc +84901234567)";
+                }
+                return null;
+            }
+            
+            function showValidationPopup(message) {
+                // Tạo overlay
+                const overlay = $('<div class="validation-popup-overlay"></div>');
+                
+                // Tạo popup
+                const popup = $(`
+                    <div class="validation-popup">
+                        <h5 style="color: #dc3545; margin-bottom: 15px;">
+                            <i class="fas fa-exclamation-triangle"></i> Lỗi nhập liệu
+                        </h5>
+                        <p style="margin-bottom: 20px;">${message}</p>
+                        <button type="button" class="btn btn-danger" onclick="closeValidationPopup()">
+                            Đóng
+                        </button>
+                    </div>
+                `);
+                
+                // Thêm vào body
+                $('body').append(overlay).append(popup);
+                
+                // Auto close sau 5 giây
+                setTimeout(closeValidationPopup, 5000);
+            }
+            
+            window.closeValidationPopup = function() {
+                $('.validation-popup-overlay, .validation-popup').remove();
+            };
+            
+            function validateForm() {
+                let isValid = true;
+                
+                // Validate name (chỉ khi user chưa đăng nhập)
+                if (!@User.Identity.IsAuthenticated.ToString().ToLower()) {
+                    const nameInput = $('#name');
+                    const nameError = validateName(nameInput.val());
+                    
+                    if (nameError) {
+                        nameInput.addClass('is-invalid');
+                        $('#nameError').text(nameError);
+                        isValid = false;
+                        showValidationPopup(nameError);
+                    } else {
+                        nameInput.removeClass('is-invalid');
+                        $('#nameError').text('');
+                    }
+                    
+                    // Validate phone
+                    const phoneInput = $('#phone');
+                    const phoneError = validatePhone(phoneInput.val());
+                    
+                    if (phoneError) {
+                        phoneInput.addClass('is-invalid');
+                        $('#phoneError').text(phoneError);
+                        isValid = false;
+                        if (!nameError) { // Chỉ hiện popup phone nếu name không có lỗi
+                            showValidationPopup(phoneError);
+                        }
+                    } else {
+                        phoneInput.removeClass('is-invalid');
+                        $('#phoneError').text('');
+                    }
+                }
+                
+                return isValid;
+            }
+            
+            // Attach validation to form submit
+            $('#bookingForm').on('submit', function(e) {
+                if (!validateForm()) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+            
+            // Real-time validation
+            $('#name').on('input blur', function() {
+                const nameError = validateName($(this).val());
+                if (nameError) {
+                    $(this).addClass('is-invalid');
+                    $('#nameError').text(nameError);
+                } else {
+                    $(this).removeClass('is-invalid');
+                    $('#nameError').text('');
+                }
+            });
+            
+            $('#phone').on('input blur', function() {
+                const phoneError = validatePhone($(this).val());
+                if (phoneError) {
+                    $(this).addClass('is-invalid');
+                    $('#phoneError').text(phoneError);
+                } else {
+                    $(this).removeClass('is-invalid');
+                    $('#phoneError').text('');
+                }
+            });
+            
+            // Existing room management functions
+            function registerAddRoomButtons() {
+                $('.addRoomButton').off('click').on('click', function () {
+                    var roomId = $(this).data('room-id');
+
+                    $.ajax({
+                        url: '@Url.Action("AddRoom", "Booking")',
+                        type: 'GET',
+                        data: { id: roomId },
+                        success: function (result) {
+                            $('#roomListContainer').html(result);
+                            registerRemoveRoomButtons();
+                            // Refresh lại pricing khi thêm phòng
+                            updatePricingDisplay();
+                        },
+                        error: function () {
+                            alert('An error has occurred');
+                        }
+                    });
+                });
+            }
+            function registerRemoveRoomButtons() {
+                $('.removeRoomButton').off('click').on('click', function () {
+                    var id = $(this).data('room-id');
+
+                    $.ajax({
+                        url: '@Url.Action("RemoveRoom", "Booking")',
+                        type: 'GET',
+                        data: { id: id },
+                        success: function (result) {
+                            console.log("remove:" + id);
+                            $('#roomListContainer').html(result);
+                            registerRemoveRoomButtons();
+                            // Refresh lại pricing khi bớt phòng
+                            updatePricingDisplay();
+                        },
+                        error: function () {
+                            alert('An error has occurred');
+                        }
+                    });
+                });
+            }
+            //updatetime
+            function updateTime() {
+                var checkIn = $('#CheckInDate').val();
+                var checkOut = $('#CheckOutDate').val();
+                console.log(checkIn);
+                
+                // Cập nhật available rooms
+                $.ajax({
+                    url: '@Url.Action("UpdateTime", "Booking")',
+                    type: 'POST',
+                    data: {
+                        start: checkIn,
+                        end: checkOut
+                    },
+                    success: function (result) {
+                        $('#availbleRoomList').html(result);
+                        registerAddRoomButtons();
+                        
+                        // Sau khi cập nhật available rooms, cập nhật pricing cho selected rooms
+                        refreshSelectedRoomsPricing();
+                    },
+                    error: function () {
+                        alert('An error has occurred');
+                    }
+                });
+            }
+            
+            // Function để refresh pricing cho selected rooms
+            function refreshSelectedRoomsPricing() {
+                $.ajax({
+                    url: '@Url.Action("RefreshSelectedRooms", "Booking")',
+                    type: 'POST',
+                    success: function (result) {
+                        $('#roomListContainer').html(result);
+                        registerRemoveRoomButtons();
+                        console.log("Selected rooms pricing updated");
+                    },
+                    error: function () {
+                        console.log('Error updating selected rooms pricing');
+                    }
+                });
+            }
+
+            $('#CheckInDate').change(updateTime);
+            $('#CheckOutDate').change(updateTime);
+
+            registerAddRoomButtons();
+            registerRemoveRoomButtons();
+            
+            // Function để cập nhật pricing display
+            function updatePricingDisplay() {
+                // Pricing đã được cập nhật trong partial view rồi
+                console.log("Pricing updated");
+            }
+        });
+
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            setTimeout(function () {
+                var alertElement = document.getElementById('statusAlert');
+                if (alertElement) {
+                    alertElement.classList.remove('show');
+                    alertElement.classList.add('fade');
+                    setTimeout(() => {
+                        alertElement.remove();
+                    }, 150);
+                }
+            }, 5000);
+        });
+    </script>
+}

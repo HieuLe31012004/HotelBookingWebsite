@@ -1,0 +1,264 @@
+@model IEnumerable<DemoHotelBooking.Models.Booking>
+@{
+    ViewData["Title"] = "Quản lý đặt phòng";
+    Layout = "_Layout";
+
+    // Declare variables for selected states
+    var statusFilter = ViewBag.StatusFilter?.ToString() ?? "";
+    var isStatus0Selected = statusFilter == "0" ? "selected" : "";
+    var isStatus5Selected = statusFilter == "5" ? "selected" : "";
+    var isStatusSelected = statusFilter == "1" ? "selected" : "";
+    var isStatus2Selected = statusFilter == "2" ? "selected" : "";
+    var isStatus3Selected = statusFilter == "3" ? "selected" : "";
+    var isStatus4Selected = statusFilter == "4" ? "selected" : "";
+    var searchFilter = ViewBag.SearchFilter?.ToString() ?? "";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-calendar-check mr-2"></i>
+                        Quản lý đặt phòng
+                    </h3>
+                </div>
+
+                <!-- Filters -->
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <select class="form-control" id="statusFilter">
+                                <option value="">Tất cả trạng thái</option>
+                                <option value="0" isStatus0Selected>Đã cọc</option>
+                                <option value="1" isStatus1Selected>Yêu cầu hủy (chờ hoàn tiền)</option>
+                                <option value="2" isStatus2Selected>Đã nhận phòng</option>
+                                <option value="3" isStatus3Selected>Đã trả phòng</option>
+                                <option value="4" isStatus4Selected>Hủy và hoàn tất hoàn tiền</option>
+                                <option value="5" isStatus5Selected>Hoàn thành</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="searchInput"
+                                       placeholder="Tìm theo tên, email hoặc ID..." value="@searchFilter">
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary" type="button" id="searchBtn">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="@Url.Action("Statistics", "BookingManager", new { area = "Admin" })" class="btn btn-info">
+                                <i class="fas fa-chart-bar"></i> Thống kê
+                            </a>
+                            <a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })" class="btn btn-warning ms-2" style="background-color: #FF8C00; color: #fff; font-weight: bold;">
+                                <i class="fas fa-home"></i> Về trang tổng quan
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Booking List -->
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Khách hàng</th>
+                                    <th>Email</th>
+                                    <th>Ngày đặt</th>
+                                    <th>Check-in</th>
+                                    <th>Check-out</th>
+                                    <th>Số phòng</th>
+                                    <th>Tổng tiền</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var booking in Model)
+                                {
+                                    <tr>
+                                        <td>#@booking.Id</td>
+                                        <td>@booking.Customer?.FullName</td>
+                                        <td>@booking.Customer?.Email</td>
+                                        <td>@booking.CreateDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td>@booking.CheckinDate.ToString("dd/MM/yyyy")</td>
+                                        <td>@booking.CheckoutDate.ToString("dd/MM/yyyy")</td>
+                                        <td>
+                                            <span class="badge bg-primary text-white" style="font-size:1em;">
+                                                @booking.BookingDetails.Count phòng
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <strong class="text-success">
+                                                @((booking.TotalPrice ?? 0).ToString("N0"))₫
+                                            </strong>
+                                        </td>
+                                        <td>
+                                            @switch (booking.Status)
+                                            {
+                                                case 0:
+                                                    <span class="badge bg-warning text-dark" style="font-size:1em;">Chờ xác nhận</span>
+                                                    break;
+                                                case 1:
+                                                    <span class="badge bg-warning text-dark" style="font-size:1em;">Đang yêu cầu hủy</span>
+                                                    break;
+                                                case 2:
+                                                    <span class="badge bg-info text-white" style="font-size:1em;">Đã nhận phòng</span>
+                                                    break;
+                                                case 3:
+                                                    <span class="badge bg-danger text-white" style="font-size:1em;">Đã trả phòng</span>
+                                                    break;
+                                                case 4:
+                                                    <span class="badge bg-success text-white" style="font-size:1em;">Đã hủy và hoàn tiền</span>
+                                                    break;
+                                                case 5:
+                                                    <span class="badge bg-success text-white" style="font-size:1em;">Hoànn thành</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge bg-secondary text-white" style="font-size:1em;">Không xác định</span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="@Url.Action("Details", "BookingManager", new { area = "Admin", id = booking.Id })"
+                                                   class="btn btn-sm btn-primary text-white" title="Chi tiết">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                @if (booking.Status == BookingStatus.Deposited)
+                                                {
+                                                    <button class="btn btn-sm btn-success"
+                                                            onclick="updateStatus(@booking.Id, 2)" title="Xác nhận">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+
+                                                    <button class="btn btn-sm btn-warning"
+                                                            onclick="updateStatus(@booking.Id, 1)" title="Yêu cầu hủy đặt">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                }
+
+                                                @if (booking.Status == BookingStatus.CheckedIn)
+                                                {
+                                                    <button class="btn btn-sm btn-success"
+                                                            onclick="updateStatus(@booking.Id, 3)" title="Xác nhận trả phòng">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                }
+
+                                                @if (booking.Status == BookingStatus.CheckedOut)
+                                                {
+                                                    <button class="btn btn-sm btn-success"
+                                                            onclick="updateStatus(@booking.Id, 5)" title="Xác nhận hoàn thành">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                }
+
+                                                @if (booking.Status == BookingStatus.CancelRequested)
+                                                {
+                                                    <button class="btn btn-sm btn-warning"
+                                                            onclick="updateStatus(@booking.Id, 0)" title="Từ chối yêu cầu hủy phòng">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-success"
+                                                            onclick="updateStatus(@booking.Id, 4)" title="Hủy và hoàn tất hoàn tiền">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                }
+                                              
+                                                <button class="btn btn-sm btn-danger"
+                                                        onclick="deleteBooking(@booking.Id)" title="Xóa">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    @if (!Model.Any())
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Không có booking nào</h5>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Search and Filter functionality
+        $('#searchBtn, #statusFilter').on('click change', function () {
+            var status = $('#statusFilter').val();
+            var search = $('#searchInput').val();
+
+            var url = '@Url.Action("Index", "BookingManager", new { area = "Admin" })' + '?status=' + status + '&search=' + encodeURIComponent(search);
+            window.location.href = url;
+        });
+
+        $('#searchInput').on('keypress', function (e) {
+            if (e.which == 13) { // Enter key
+                $('#searchBtn').click();
+            }
+        });
+
+        // Update booking status
+        function updateStatus(bookingId, newStatus) {
+            var statusText = newStatus !== 1 ? 'xác nhận' : 'hủy';
+
+            if (confirm('Bạn có chắc muốn ' + statusText + ' booking #' + bookingId + '?')) {
+                $.ajax({
+                    url: '@Url.Action("UpdateStatus", "BookingManager", new { area = "Admin" })',
+                    type: 'POST',
+                    data: {
+                        id: bookingId,
+                        status: newStatus
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            alert(response.message);
+                            location.reload();
+                        } else {
+                            alert('Lỗi: ' + response.message);
+                        }
+                    },
+                    error: function () {
+                        alert('Có lỗi xảy ra khi cập nhật trạng thái');
+                    }
+                });
+            }
+        }
+
+        // Delete booking
+        function deleteBooking(bookingId) {
+            if (confirm('Bạn có chắc muốn xóa booking #' + bookingId + '? Hành động này không thể hoàn tác!')) {
+                $.ajax({
+                    url: '@Url.Action("Delete", "BookingManager", new { area = "Admin" })',
+                    type: 'POST',
+                    data: { id: bookingId },
+                    success: function (response) {
+                        if (response.success) {
+                            alert(response.message);
+                            location.reload();
+                        } else {
+                            alert('Lỗi: ' + response.message);
+                        }
+                    },
+                    error: function () {
+                        alert('Có lỗi xảy ra khi xóa booking');
+                    }
+                });
+            }
+        }
+    </script>
+}

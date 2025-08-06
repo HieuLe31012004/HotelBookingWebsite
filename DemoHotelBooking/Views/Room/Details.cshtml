@@ -1,0 +1,208 @@
+﻿@model DemoHotelBooking.Models.Room
+
+@{
+    ViewData["Title"] = "Room Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .room-image {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+    
+    .status-badge {
+        font-size: 1em;
+        padding: 0.5em 1em;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+    
+    .card-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, #ff8c00 100%);
+        border: none;
+    }
+    
+    .info-row {
+        padding: 12px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .info-row:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        font-weight: 600;
+        color: #333;
+        min-width: 150px;
+    }
+    
+    .price-highlight {
+        font-size: 1.2em;
+        font-weight: bold;
+        color: var(--primary-color);
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="row">
+        <!-- Hình ảnh phòng -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header text-white">
+                    <h5 class="mb-0">Hình ảnh phòng</h5>
+                </div>
+                <div class="card-body p-0">
+                    @{
+                        var imageUrls = (ViewBag.ImageUrls != null && ((List<string>)ViewBag.ImageUrls).Any()) ? (List<string>)ViewBag.ImageUrls : null;
+                    }
+                    @if (imageUrls != null && imageUrls.Count > 0 && imageUrls[0] != "/img/no_image.jpg")
+                    {
+                        <div id="roomCarousel" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-inner">
+                                @for (int i = 0; i < imageUrls.Count; i++)
+                                {
+                                    <div class="carousel-item @(i == 0 ? "active" : "")">
+                                        <img src="@Url.Content(imageUrls[i])" class="d-block room-image" alt="Room Image @(i + 1)"
+                                             onerror="this.src='@Url.Content("~/img/no_image.jpg")'; this.alt='Không có hình ảnh';">
+                                    </div>
+                                }
+                            </div>
+                            @if (imageUrls.Count > 1)
+                            {
+                                <button class="carousel-control-prev" type="button" data-bs-target="#roomCarousel" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon"></span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#roomCarousel" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon"></span>
+                                </button>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        string demoImage = Model.Id % 3 == 1
+                            ? Url.Content("~/img/room-1.jpg")
+                            : (Model.Id % 3 == 2
+                                ? Url.Content("~/img/room-2.jpg")
+                                : Url.Content("~/img/room-3.jpg"));
+                        <div class="text-center p-0">
+                            <img src="@demoImage" class="d-block room-image mx-auto" alt="Demo Room Image" />
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        
+        <!-- Thông tin phòng -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header text-white">
+                    <h3 class="mb-0">Chi tiết phòng - @Model.Name</h3>
+                </div>
+                <div class="card-body">
+                    <div class="info-row d-flex">
+                        <span class="info-label">Tên phòng:</span>
+                        <span class="ms-3">@Model.Name</span>
+                    </div>
+                    
+                    <div class="info-row d-flex">
+                        <span class="info-label">Loại phòng:</span>
+                        <span class="ms-3">@Model.Type</span>
+                    </div>
+                    
+                    <div class="info-row d-flex">
+                        <span class="info-label">Tầng:</span>
+                        <span class="ms-3">Tầng @Model.FloorNumber</span>
+                    </div>
+                    
+                    <div class="info-row d-flex">
+                        <span class="info-label">Trạng thái:</span>
+                        <span class="ms-3">
+                            @{
+                                string statusText = "";
+                                string statusClass = "";
+                                switch (Model.Status)
+                                {
+                                    case "Available":
+                                        statusText = "Trống";
+                                        statusClass = "status-badge bg-success text-white";
+                                        break;
+                                    case "Occupied":
+                                        statusText = "Đã đặt";
+                                        statusClass = "status-badge bg-warning text-dark";
+                                        break;
+                                    case "Maintenance":
+                                        statusText = "Bảo trì";
+                                        statusClass = "status-badge bg-secondary text-white";
+                                        break;
+                                    default:
+                                        statusText = "Phòng không có sẵn";
+                                        statusClass = "status-badge bg-dark text-white";
+                                        break;
+                                }
+                            }
+                            <span class="@statusClass">@statusText</span>
+                        </span>
+                    </div>
+                    
+                    <div class="info-row d-flex">
+                        <span class="info-label">Giá phòng:</span>
+                        <span class="ms-3 price-highlight">@Model.Price.ToString("N0") VNĐ / đêm</span>
+                    </div>
+                    
+                    <div class="info-row d-flex">
+                        <span class="info-label">Sức chứa tiêu chuẩn:</span>
+                        <span class="ms-3">@Model.DAP người</span>
+                    </div>
+                    
+                    <div class="info-row d-flex">
+                        <span class="info-label">Sức chứa tối đa:</span>
+                        <span class="ms-3">@Model.MAP người</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mô tả chi tiết -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header text-white">
+                    <h5 class="mb-0">Mô tả chi tiết</h5>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.Introduce))
+                    {
+                        <div class="mb-3">
+                            <h6 class="text-primary">Giới thiệu:</h6>
+                            <p>@Model.Introduce</p>
+                        </div>
+                    }
+                    
+                    @if (!string.IsNullOrEmpty(Model.Description))
+                    {
+                        <div class="mb-3">
+                            <h6 class="text-primary">Mô tả:</h6>
+                            <p>@Model.Description</p>
+                        </div>
+                    }
+                    
+                    @if (string.IsNullOrEmpty(Model.Introduce) && string.IsNullOrEmpty(Model.Description))
+                    {
+                        <p class="text-muted text-center">Chưa có mô tả cho phòng này.</p>
+                    }
+                </div>
+                <div class="card-footer text-end bg-light">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Quay lại danh sách
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

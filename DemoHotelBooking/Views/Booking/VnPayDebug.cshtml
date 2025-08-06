@@ -1,0 +1,188 @@
+@{
+    ViewData["Title"] = "VnPay Debug";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-xxl py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="mb-4">
+                    <i class="fas fa-bug me-2"></i>VnPay Payment Debug
+                </h2>
+                
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        @TempData["Error"]
+                    </div>
+                }
+                
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        @TempData["Success"]
+                    </div>
+                }
+                
+                <!-- Configuration Info -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-cog me-2"></i>Cấu hình VnPay
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <strong>VnPay URL:</strong>
+                                        <span class="text-muted">@ViewBag.VnPayUrl</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <strong>TMN Code:</strong>
+                                        <span class="text-muted">@ViewBag.TmnCode</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <strong>Version:</strong>
+                                        <span class="text-muted">@ViewBag.Version</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <strong>Return URL:</strong>
+                                        <span class="text-muted text-break">@ViewBag.ReturnUrl</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <strong>Command:</strong>
+                                        <span class="text-muted">@ViewBag.Command</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <strong>Hash Secret:</strong>
+                                        <span class="badge @(ViewBag.HasHashSecret ? "bg-success" : "bg-danger")">
+                                            @(ViewBag.HasHashSecret ? "Configured" : "Missing")
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Environment Info -->
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>Thông tin môi trường
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        @{
+                            var debugInfo = ViewBag.DebugInfo;
+                        }
+                        <div class="row">
+                            <div class="col-md-12">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <strong>Environment:</strong>
+                                        <span class="badge @(debugInfo.IsLocalhost ? "bg-warning" : "bg-success")">
+                                            @(debugInfo.IsLocalhost ? "Development (localhost)" : "Production")
+                                        </span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <strong>Current URL:</strong>
+                                        <span class="text-muted">@debugInfo.CurrentUrl</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <strong>Payment Gateway:</strong>
+                                        <span class="badge bg-primary">@debugInfo.PaymentGateway</span>
+                                    </li>
+                                </ul>
+                                
+                                @if (debugInfo.IsLocalhost)
+                                {
+                                    <div class="alert alert-info mt-3">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        <strong>Lưu ý:</strong> Bạn đang chạy trên localhost. VnPay sandbox có thể callback về localhost cho testing.
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Test Payment -->
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-credit-card me-2"></i>Test Thanh toán VnPay
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="TestVnPayPayment" method="post">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="amount" class="form-label">Số tiền (VND)</label>
+                                        <input type="number" id="amount" name="amount" class="form-control" 
+                                               value="50000" min="1000" max="50000000" step="1000">
+                                        <div class="form-text">Nhập số tiền từ 1,000 VND đến 50,000,000 VND</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 d-flex align-items-end">
+                                    <div class="mb-3">
+                                        <button type="submit" class="btn btn-success">
+                                            <i class="fas fa-rocket me-2"></i>Test Thanh toán VnPay
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        
+                        <hr>
+                        
+                        <div class="row">
+                            <div class="col-12">
+                                <h6>Hướng dẫn test:</h6>
+                                <ol class="text-muted">
+                                    <li>Click "Test Thanh toán VnPay" để tạo payment URL</li>
+                                    <li>Bạn sẽ được redirect đến trang thanh toán VnPay sandbox</li>
+                                    <li>Sử dụng thông tin test card của VnPay để hoàn tất thanh toán</li>
+                                    <li>Sau khi thanh toán, hệ thống sẽ callback về PaymentCallBack</li>
+                                </ol>
+                                
+                                <div class="alert alert-warning mt-3">
+                                    <strong>Thông tin test VnPay:</strong><br>
+                                    - Số thẻ test: 9704198526191432198<br>
+                                    - Tên chủ thẻ: NGUYEN VAN A<br>
+                                    - Ngày hết hạn: 07/15<br>
+                                    - Mã CVV: 123<br>
+                                    - Mật khẩu OTP: 123456
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-format amount input
+        $(document).ready(function() {
+            $('#amount').on('input', function() {
+                let value = $(this).val().replace(/\D/g, '');
+                if (value) {
+                    $(this).val(parseInt(value));
+                }
+            });
+        });
+    </script>
+}

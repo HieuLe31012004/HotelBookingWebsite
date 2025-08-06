@@ -1,0 +1,440 @@
+/* ==============================================
+   COLOR SCHEME CONSISTENCY - HOTEL BOOKING SYSTEM
+   ============================================== */
+
+:root {
+    /* Primary Colors - Orange Theme */
+    --primary-color: #FFA500;          /* Main orange */
+    --primary-dark: #FF8C00;           /* Darker orange */
+    --primary-light: #FFB84D;          /* Lighter orange */
+    --primary-hover: #E68A00;          /* Hover state */
+    
+    /* Secondary Colors */
+    --secondary-color: #1A1A2E;        /* Dark navy */
+    --secondary-light: #16213E;        /* Lighter navy */
+    
+    /* Accent Colors */
+    --accent-gold: #FFD700;            /* Gold accent */
+    --accent-blue: #007BFF;            /* Info blue */
+    --accent-green: #28A745;           /* Success green */
+    --accent-red: #DC3545;             /* Danger red */
+    --accent-yellow: #FFC107;          /* Warning yellow */
+    
+    /* Neutral Colors */
+    --white: #FFFFFF;
+    --gray-100: #F8F9FA;
+    --gray-200: #E9ECEF;
+    --gray-300: #DEE2E6;
+    --gray-400: #CED4DA;
+    --gray-500: #ADB5BD;
+    --gray-600: #6C757D;
+    --gray-700: #495057;
+    --gray-800: #343A40;
+    --gray-900: #212529;
+    --black: #000000;
+    
+    /* Text Colors */
+    --text-primary: #212529;
+    --text-secondary: #6C757D;
+    --text-muted: #ADB5BD;
+    --text-white: #FFFFFF;
+    
+    /* Background Colors */
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F8F9FA;
+    --bg-dark: #1A1A2E;
+    --bg-light: #F8F9FA;
+    
+    /* Border Colors */
+    --border-color: #DEE2E6;
+    --border-light: #E9ECEF;
+    --border-dark: #ADB5BD;
+}
+
+/* ==============================================
+   GLOBAL STYLES
+   ============================================== */
+
+/* Ensure consistent colors across the site */
+.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+.bg-secondary {
+    background-color: var(--secondary-color) !important;
+}
+
+.bg-dark {
+    background-color: var(--bg-dark) !important;
+}
+
+.bg-light {
+    background-color: var(--bg-light) !important;
+}
+
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+.text-secondary {
+    color: var(--text-secondary) !important;
+}
+
+.text-white {
+    color: var(--text-white) !important;
+}
+
+.text-dark {
+    color: var(--text-primary) !important;
+}
+
+/* ==============================================
+   BUTTON STYLES
+   ============================================== */
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--white);
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+    color: var(--white);
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:active {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--white);
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+    color: var(--white);
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus,
+.btn-secondary:active {
+    background-color: var(--secondary-light);
+    border-color: var(--secondary-light);
+    color: var(--white);
+}
+
+/* ==============================================
+   NAVBAR STYLES
+   ============================================== */
+
+.navbar-dark {
+    background-color: var(--bg-dark) !important;
+}
+
+.navbar-dark .navbar-brand,
+.navbar-dark .navbar-nav .nav-link {
+    color: var(--text-white) !important;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover,
+.navbar-dark .navbar-nav .nav-link:focus {
+    color: var(--primary-color) !important;
+}
+
+/* ==============================================
+   HEADER STYLES
+   ============================================== */
+
+.header {
+    background-color: var(--white);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.header .logo span {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+/* ==============================================
+   SIDEBAR STYLES
+   ============================================== */
+
+.sidebar {
+    background-color: var(--white);
+    border-right: 1px solid var(--border-light);
+}
+
+.sidebar-nav .nav-link {
+    color: var(--text-primary);
+}
+
+.sidebar-nav .nav-link:hover,
+.sidebar-nav .nav-link.active {
+    background-color: var(--bg-secondary);
+    color: var(--primary-color);
+}
+
+.sidebar-nav .nav-link i {
+    color: var(--primary-color);
+}
+
+/* ==============================================
+   CARD STYLES
+   ============================================== */
+
+.card {
+    border: 1px solid var(--border-light);
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.card-header {
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.card-header.bg-primary {
+    background-color: var(--primary-color) !important;
+    color: var(--white);
+}
+
+.card-header.bg-secondary {
+    background-color: var(--secondary-color) !important;
+    color: var(--white);
+}
+
+/* ==============================================
+   BADGE STYLES
+   ============================================== */
+
+.badge.bg-warning {
+    background-color: var(--accent-yellow) !important;
+    color: var(--text-primary) !important;
+}
+
+.badge.bg-info {
+    background-color: var(--accent-blue) !important;
+    color: var(--white) !important;
+}
+
+.badge.bg-danger {
+    background-color: var(--accent-red) !important;
+    color: var(--white) !important;
+}
+
+.badge.bg-success {
+    background-color: var(--accent-green) !important;
+    color: var(--white) !important;
+}
+
+.badge.bg-primary {
+    background-color: var(--primary-color) !important;
+    color: var(--white) !important;
+}
+
+.badge.bg-secondary {
+    background-color: var(--gray-600) !important;
+    color: var(--white) !important;
+}
+
+/* ==============================================
+   ALERT STYLES
+   ============================================== */
+
+.alert-success {
+    background-color: rgba(40, 167, 69, 0.1);
+    border-color: var(--accent-green);
+    color: #155724;
+}
+
+.alert-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    border-color: var(--accent-red);
+    color: #721c24;
+}
+
+.alert-warning {
+    background-color: rgba(255, 193, 7, 0.1);
+    border-color: var(--accent-yellow);
+    color: #856404;
+}
+
+.alert-info {
+    background-color: rgba(0, 123, 255, 0.1);
+    border-color: var(--accent-blue);
+    color: #004085;
+}
+
+/* ==============================================
+   FORM STYLES
+   ============================================== */
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(255, 165, 0, 0.25);
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* ==============================================
+   TABLE STYLES
+   ============================================== */
+
+.table-striped > tbody > tr:nth-of-type(odd) > td,
+.table-striped > tbody > tr:nth-of-type(odd) > th {
+    background-color: var(--bg-secondary);
+}
+
+.table thead th {
+    background-color: var(--primary-color);
+    color: var(--white);
+    border-color: var(--primary-color);
+}
+
+/* ==============================================
+   LINK STYLES
+   ============================================== */
+
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+a:hover,
+a:focus {
+    color: var(--primary-hover);
+    text-decoration: underline;
+}
+
+/* ==============================================
+   MODAL STYLES
+   ============================================== */
+
+.modal-header {
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.modal-footer {
+    background-color: var(--bg-secondary);
+    border-top: 1px solid var(--border-light);
+}
+
+/* ==============================================
+   PAGINATION STYLES
+   ============================================== */
+
+.page-item.active .page-link {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.page-link {
+    color: var(--primary-color);
+}
+
+.page-link:hover {
+    background-color: var(--primary-light);
+    border-color: var(--primary-color);
+    color: var(--white);
+}
+
+/* ==============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================== */
+
+@media (max-width: 768px) {
+    .sidebar {
+        background-color: var(--white);
+    }
+    
+    .navbar-dark {
+        background-color: var(--bg-dark) !important;
+    }
+}
+
+/* ==============================================
+   UTILITY CLASSES
+   ============================================== */
+
+.text-primary-custom {
+    color: var(--primary-color) !important;
+}
+
+.bg-primary-custom {
+    background-color: var(--primary-color) !important;
+    color: var(--white) !important;
+}
+
+.border-primary-custom {
+    border-color: var(--primary-color) !important;
+}
+
+.shadow-custom {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* ==============================================
+   BOOKING SPECIFIC STYLES
+   ============================================== */
+
+.booking-card {
+    transition: transform 0.2s ease-in-out;
+    border: 1px solid var(--border-light);
+}
+
+.booking-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.status-badge-1 {
+    background-color: var(--accent-yellow) !important;
+    color: var(--text-primary) !important;
+}
+
+.status-badge-2 {
+    background-color: var(--accent-blue) !important;
+    color: var(--white) !important;
+}
+
+.status-badge-3 {
+    background-color: var(--accent-red) !important;
+    color: var(--white) !important;
+}
+
+.status-badge-4 {
+    background-color: var(--accent-green) !important;
+    color: var(--white) !important;
+}
+
+/* ==============================================
+   HEADER TOP BAR
+   ============================================== */
+
+.header-top {
+    background-color: var(--primary-color);
+    color: var(--white);
+    padding: 10px 0;
+}
+
+.header-top a {
+    color: var(--white);
+}
+
+.header-top a:hover {
+    color: var(--gray-200);
+}

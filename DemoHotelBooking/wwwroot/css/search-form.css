@@ -1,0 +1,293 @@
+/* ==============================================
+   SEARCH FORM STYLES - HOTEL BOOKING SYSTEM
+   ============================================== */
+
+/* Search Container */
+.search-container {
+    background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+    border-radius: 15px;
+    padding: 30px;
+    margin: 20px 0;
+    box-shadow: 0 10px 30px rgba(255, 165, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.search-container::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+    transform: rotate(45deg);
+    pointer-events: none;
+}
+
+/* Search Title */
+.search-title {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 25px;
+    text-align: center;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.search-title i {
+    margin-right: 10px;
+    font-size: 1.3rem;
+}
+
+/* Form Controls */
+.search-form .form-label {
+    color: white;
+    font-weight: 500;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.search-form .form-control {
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    padding: 12px 15px;
+    font-size: 1rem;
+    background: rgba(255, 255, 255, 0.9);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.search-form .form-control:focus {
+    border-color: white;
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.3);
+    background: white;
+    transform: translateY(-2px);
+}
+
+.search-form .form-control::placeholder {
+    color: #999;
+    font-style: italic;
+}
+
+/* Input Group */
+.search-form .input-group {
+    position: relative;
+}
+
+.search-form .input-group-text {
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-left: none;
+    color: #FFA500;
+    border-radius: 0 10px 10px 0;
+    transition: all 0.3s ease;
+}
+
+.search-form .input-group:focus-within .input-group-text {
+    background: white;
+    border-color: white;
+    color: #FF8C00;
+}
+
+/* Search Button */
+.search-btn {
+    background: linear-gradient(135deg, white 0%, #f8f9fa 100%);
+    border: 2px solid white;
+    color: #FFA500;
+    font-weight: 600;
+    padding: 12px 25px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.search-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.5s;
+}
+
+.search-btn:hover::before {
+    left: 100%;
+}
+
+.search-btn:hover {
+    background: white;
+    color: #FF8C00;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.search-btn:active {
+    transform: translateY(-1px);
+}
+
+.search-btn i {
+    margin-right: 8px;
+}
+
+/* Date Inputs */
+.search-form input[type="date"] {
+    position: relative;
+    cursor: pointer;
+}
+
+.search-form input[type="date"]::-webkit-calendar-picker-indicator {
+    background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTYgMlY2TTEyIDJWNk0zIDEwSDE3TTUgNEgxNUM2LjEgNCA3IDQuOSA3IDZWMTZDNyAxNy4xIDYuMSAxOCA1IDE4SDVDNC45IDE4IDQgMTcuMSA0IDE2VjZDNCA0LjkgNC45IDQgNSA0WiIgc3Ryb2tlPSIjRkZBNTAwIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K') no-repeat;
+    background-size: 20px;
+    cursor: pointer;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .search-container {
+        padding: 20px;
+        margin: 15px 0;
+    }
+    
+    .search-title {
+        font-size: 1.3rem;
+        margin-bottom: 20px;
+    }
+    
+    .search-form .form-control {
+        padding: 10px 12px;
+        font-size: 0.95rem;
+    }
+    
+    .search-btn {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .search-container {
+        padding: 15px;
+        border-radius: 10px;
+    }
+    
+    .search-title {
+        font-size: 1.2rem;
+    }
+    
+    .search-btn {
+        width: 100%;
+        margin-top: 10px;
+    }
+}
+
+/* Animation for form appearance */
+.search-container {
+    animation: slideInUp 0.6s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Loading state */
+.search-btn.loading {
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+.search-btn.loading i {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Enhanced focus styles */
+.search-form .form-control:focus,
+.search-form .form-select:focus {
+    outline: none;
+    border-color: white;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+}
+
+/* Select styling */
+.search-form .form-select {
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    padding: 12px 15px;
+    font-size: 1rem;
+    background: rgba(255, 255, 255, 0.9);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+.search-form .form-select:focus {
+    border-color: white;
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.3);
+    background: white;
+    transform: translateY(-2px);
+}
+
+/* Custom checkbox and radio styles */
+.search-form .form-check-input:checked {
+    background-color: white;
+    border-color: white;
+}
+
+.search-form .form-check-label {
+    color: white;
+    font-weight: 500;
+}
+
+/* Advanced search toggle */
+.advanced-search-toggle {
+    color: white;
+    text-decoration: none;
+    font-size: 0.9rem;
+    opacity: 0.9;
+    transition: opacity 0.3s ease;
+}
+
+.advanced-search-toggle:hover {
+    color: white;
+    opacity: 1;
+    text-decoration: underline;
+}
+
+/* Search results count */
+.search-results-info {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+    font-size: 0.9rem;
+}
+
+/* Error states */
+.search-form .form-control.is-invalid {
+    border-color: #ff6b6b;
+}
+
+.search-form .invalid-feedback {
+    color: #ffebee;
+    font-weight: 500;
+}

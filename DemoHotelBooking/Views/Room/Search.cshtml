@@ -1,0 +1,418 @@
+@{
+    ViewData["Title"] = "Tìm Kiếm Phòng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/css/search-form.css" rel="stylesheet" />
+<link href="~/css/search.css" rel="stylesheet" />
+
+<style>
+.search-container {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    padding: 32px 24px;
+    margin-bottom: 32px;
+}
+.search-title {
+    color: var(--primary-color, #FF8C00);
+    font-weight: bold;
+    margin-bottom: 24px;
+}
+.search-form .form-label {
+    font-weight: 500;
+    color: #333;
+}
+.search-form .form-control, .search-form .form-select {
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    box-shadow: none;
+}
+.search-btn {
+    background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    padding: 10px 32px;
+    transition: all 0.2s;
+}
+.search-btn:hover {
+    background: linear-gradient(135deg, #FF8C00 0%, #FFA500 100%);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(255,140,0,0.15);
+}
+.btn-outline-light {
+    border-radius: 8px;
+    color: #FF8C00;
+    border: 1px solid #FF8C00;
+}
+.btn-outline-light:hover {
+    background: #FF8C00;
+    color: #fff;
+}
+.input-group-text {
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+.quick-price.active, .quick-price:active {
+    background: #FF8C00 !important;
+    color: #fff !important;
+    border-color: #FF8C00 !important;
+}
+.search-results-info {
+    background: #fff3cd;
+    color: #856404;
+    border-radius: 8px;
+    padding: 12px 20px;
+    margin-top: 16px;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(255,140,0,0.08);
+}
+.hotel-search-widget {
+    z-index: 9999;
+}
+
+</style>
+
+<!-- Main Search Section -->
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Featured Search Form -->
+            <div class="search-container">
+                <h2 class="search-title">
+                    <i class="fas fa-search"></i>
+                    Tìm Kiếm Phòng Khách Sạn
+                </h2>
+                
+                <form class="search-form" method="get" asp-controller="Room" asp-action="SearchRooms">
+                    <div class="row g-3">
+                        <!-- Check-in Date -->
+                        <div class="col-md-6 col-lg-3">
+                            <label for="checkin" class="form-label">
+                                <i class="fas fa-calendar-alt me-1"></i>
+                                Ngày nhận phòng
+                            </label>
+                            <input type="date" class="form-control" id="checkin" name="CheckIn" 
+                                   value="@DateTime.Now.ToString("yyyy-MM-dd")" required>
+                        </div>
+                        
+                        <!-- Check-out Date -->
+                        <div class="col-md-6 col-lg-3">
+                            <label for="checkout" class="form-label">
+                                <i class="fas fa-calendar-check me-1"></i>
+                                Ngày trả phòng
+                            </label>
+                            <input type="date" class="form-control" id="checkout" name="CheckOut" 
+                                   value="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")" required>
+                        </div>
+                        
+                        <!-- Room Type -->
+                        <div class="col-md-6 col-lg-3">
+                            <label for="roomtype" class="form-label">
+                                <i class="fas fa-bed me-1"></i>
+                                Loại phòng
+                            </label>
+                            <select class="form-select" id="roomtype" name="RoomType">
+                                <option value="">Tất cả loại phòng</option>
+                                @if (ViewBag.RoomTypes != null)
+                                {
+                                    @foreach (var type in ViewBag.RoomTypes)
+                                    {
+                                        <option value="@type">@type</option>
+                                    }
+                                }
+                                else
+                                {
+                                    <option value="Standard">Phòng tiêu chuẩn (Standard)</option>
+                                    <option value="Superior">Phòng cao cấp (Superior)</option>
+                                    <option value="Deluxe">Phòng sang trọng (Deluxe)</option>
+                                    <option value="Suite">Phòng suite (Suite)</option>
+                                }
+                            </select>
+                        </div>
+                        
+                        <!-- Search Query -->
+                        <div class="col-md-6 col-lg-3">
+                            <label for="searchquery" class="form-label">
+                                <i class="fas fa-search me-1"></i>
+                                Tìm kiếm
+                            </label>
+                            <input type="text" class="form-control" id="searchquery" name="q" 
+                                   placeholder="Tên phòng, loại phòng...">
+                        </div>
+                        
+                        <!-- Number of Guests -->
+                        <div class="col-md-6 col-lg-3">
+                            <label for="guests" class="form-label">
+                                <i class="fas fa-users me-1"></i>
+                                Số khách
+                            </label>
+                            <select class="form-select" id="guests" name="Guests">
+                                <option value="">Tất cả</option>
+                                <option value="1">1 khách</option>
+                                <option value="2" selected>2 khách</option>
+                                <option value="3">3 khách</option>
+                                <option value="4">4 khách</option>
+                                <option value="5">5 khách</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Price Range -->
+                        <div class="col-md-6">
+                            <label for="pricemin" class="form-label">
+                                <i class="fas fa-money-bill-wave me-1"></i>
+                                Khoảng giá (VNĐ)
+                            </label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="pricemin" name="MinPrice" 
+                                       placeholder="Từ 500,000" min="500000" step="500000">
+                                <span class="input-group-text">-</span>
+                                <input type="number" class="form-control" id="pricemax" name="MaxPrice" 
+                                       placeholder="Đến 2,000,000" min="500000" step="200000">
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted d-block mb-1">Khoảng giá phổ biến:</small>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-outline-secondary quick-price" data-min="500000" data-max="700000">500k-700k</button>
+                                    <button type="button" class="btn btn-outline-secondary quick-price" data-min="700000" data-max="1000000">700k-1M</button>
+                                    <button type="button" class="btn btn-outline-secondary quick-price" data-min="1000000" data-max="1500000">1M-1.5M</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Search Button -->
+                        <div class="col-12">
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                                <button type="submit" class="search-btn">
+                                    <i class="fas fa-search"></i>
+                                    Tìm Kiếm Phòng
+                                </button>
+                                <button type="reset" class="btn btn-outline-light">
+                                    <i class="fas fa-redo"></i>
+                                    Đặt lại
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                
+                <!-- Quick Search Info -->
+                <div class="search-results-info mt-3" style="display: none;">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Tìm thấy <span id="results-count">0</span> phòng phù hợp
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Search Links -->
+</div>
+
+<!-- Floating Search Widget -->
+<div class="hotel-search-widget" id="floatingSearch">
+    <div class="search-toggle-btn" onclick="toggleFloatingSearch()">
+        <i class="fas fa-search"></i>
+    </div>
+    <div class="search-panel">
+        <button class="close-search" onclick="toggleFloatingSearch()">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="search-panel-title">
+            <i class="fas fa-search"></i>
+            Tìm kiếm nhanh
+        </div>
+        <div class="search-input-group">
+            <input type="text" class="quick-search-input" placeholder="Nhập từ khóa tìm kiếm...">
+            <button class="search-submit-btn" type="button">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+        <div class="quick-search-links">
+            <a href="#" class="quick-search-link">Phòng VIP</a>
+            <a href="#" class="quick-search-link">Có hồ bơi</a>
+            <a href="#" class="quick-search-link">Gần biển</a>
+            <a href="#" class="quick-search-link">Giá rẻ</a>
+            <a href="#" class="quick-search-link">Phòng đôi</a>
+            <a href="#" class="quick-search-link">Suite</a>
+        </div>
+    </div>
+</div>
+
+<!-- Search Results Section -->
+<div class="container mt-5" id="searchResults" style="display: none;">
+    <div class="row">
+        <div class="col-12">
+            <h3 class="mb-4" style="color: var(--primary-color);">
+                <i class="fas fa-list me-2"></i>
+                Kết quả tìm kiếm
+            </h3>
+            <div class="row" id="roomResults">
+                <!-- Dynamic room results will be inserted here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Floating search widget functionality
+function toggleFloatingSearch() {
+    const widget = document.getElementById('floatingSearch');
+    widget.classList.toggle('expanded');
+}
+
+// Set default dates (today and tomorrow)
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    const checkinInput = document.getElementById('checkin');
+    const checkoutInput = document.getElementById('checkout');
+    
+    if (checkinInput) {
+        checkinInput.value = today.toISOString().split('T')[0];
+        checkinInput.min = today.toISOString().split('T')[0];
+    }
+    
+    if (checkoutInput) {
+        checkoutInput.value = tomorrow.toISOString().split('T')[0];
+        checkoutInput.min = tomorrow.toISOString().split('T')[0];
+    }
+    
+    // Update checkout min date when checkin changes
+    checkinInput?.addEventListener('change', function() {
+        const selectedDate = new Date(this.value);
+        selectedDate.setDate(selectedDate.getDate() + 1);
+        checkoutInput.min = selectedDate.toISOString().split('T')[0];
+        
+        if (checkoutInput.value <= this.value) {
+            checkoutInput.value = selectedDate.toISOString().split('T')[0];
+        }
+    });
+});
+
+// Search form submission with loading state
+document.querySelector('.search-form')?.addEventListener('submit', function(e) {
+    const submitBtn = this.querySelector('.search-btn');
+    const icon = submitBtn.querySelector('i');
+    
+    // Add loading state
+    submitBtn.classList.add('loading');
+    icon.className = 'fas fa-spinner';
+    submitBtn.disabled = true;
+    
+    // Show results section
+    setTimeout(() => {
+        document.getElementById('searchResults').style.display = 'block';
+        document.querySelector('.search-results-info').style.display = 'block';
+        
+        // Reset button state
+        submitBtn.classList.remove('loading');
+        icon.className = 'fas fa-search';
+        submitBtn.disabled = false;
+    }, 1500);
+});
+
+// Quick search input functionality
+document.querySelector('.quick-search-input')?.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        const searchTerm = this.value.trim();
+        if (searchTerm) {
+            // Redirect to search results
+            window.location.href = `/Room/SearchRooms?q=${encodeURIComponent(searchTerm)}`;
+        }
+    }
+});
+
+// Close floating search when clicking outside
+document.addEventListener('click', function(e) {
+    const widget = document.getElementById('floatingSearch');
+    if (widget && !widget.contains(e.target) && widget.classList.contains('expanded')) {
+        widget.classList.remove('expanded');
+    }
+});
+</script>
+
+@section Scripts {
+    <script>
+        // Additional JavaScript for enhanced search functionality
+        $(document).ready(function() {
+            // Set minimum dates
+            var today = new Date().toISOString().split('T')[0];
+            $('#checkin').attr('min', today);
+            $('#checkout').attr('min', today);
+            // Set minimum date to today
+            var today = new Date().toISOString().split('T')[0];
+            $('#checkin').attr('min', today);
+            $('#checkout').attr('min', today);
+            
+            // Update checkout minimum when checkin changes
+            $('#checkin').change(function() {
+                var checkinDate = $(this).val();
+                if (checkinDate) {
+                    // Set minimum checkout date to one day after checkin
+                    var nextDay = new Date(checkinDate);
+                    nextDay.setDate(nextDay.getDate() + 1);
+                    var nextDayStr = nextDay.toISOString().split('T')[0];
+                    $('#checkout').attr('min', nextDayStr);
+                    
+                    // If checkout is before the new minimum, update it
+                    var checkoutDate = $('#checkout').val();
+                    if (checkoutDate && checkoutDate <= checkinDate) {
+                        $('#checkout').val(nextDayStr);
+                    }
+                }
+            });
+            
+            // Price range formatting
+            $('#pricemin, #pricemax').on('input', function() {
+                var value = $(this).val();
+                if (value && !isNaN(value)) {
+                    $(this).attr('title', new Intl.NumberFormat('vi-VN').format(value) + ' VNĐ');
+                }
+            });
+            
+            // Quick price range buttons
+            $('.quick-price').click(function(e) {
+                e.preventDefault();
+                var min = $(this).data('min');
+                var max = $(this).data('max');
+                $('#pricemin').val(min);
+                $('#pricemax').val(max);
+                $('.quick-price').removeClass('active');
+                $(this).addClass('active');
+            });
+            
+            // Real-time search as user types
+            $('#searchquery').on('input', function() {
+                var query = $(this).val();
+                if (query.length >= 3) {
+                    // Show search suggestions (could be implemented later)
+                    console.log('Searching for: ' + query);
+                }
+            });
+            
+            // Form validation
+            $('.search-form').on('submit', function(e) {
+                var checkin = $('#checkin').val();
+                var checkout = $('#checkout').val();
+                var minPrice = parseInt($('#pricemin').val()) || 0;
+                var maxPrice = parseInt($('#pricemax').val()) || 0;
+                if (checkin && checkout && new Date(checkin) >= new Date(checkout)) {
+                    e.preventDefault();
+                    alert('Ngày trả phòng phải sau ngày nhận phòng!');
+                    return false;
+                }
+                if (minPrice < 500000 || maxPrice < 500000 || minPrice > maxPrice) {
+                    e.preventDefault();
+                    alert('Khoảng giá phải lớn hơn 500,000 VNĐ và giá tối thiểu phải nhỏ hơn giá tối đa!');
+                    return false;
+                }
+                return true;
+            });
+        });
+    </script>
+}

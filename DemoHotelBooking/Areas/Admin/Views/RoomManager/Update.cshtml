@@ -1,0 +1,194 @@
+﻿@model DemoHotelBooking.ViewModels.RoomViewModel
+
+@{
+    ViewData["Title"] = "Update";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Update</h1>
+
+<h4 class="text-danger">@ViewBag.Error</h4>
+<hr />
+
+<h4>Room</h4>
+<hr />
+<div class="container">
+    <form asp-action="Update">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="Id" />
+        <div class="row">
+            <div class="col-md-4 col-lg-6" style="padding: 10px">
+                <div class="form-group" style="padding: 10px">
+                    <label asp-for="Type" class="control-label"></label>
+                    <select asp-for="Type" class="form-control" required>
+                        <option value="Standard">Standard</option>
+                        <option value="Superior">Superior</option>
+                        <option value="Deluxe">Deluxe</option>
+                        <option value="Suite">Suite</option>
+                    </select>
+                    <span asp-validation-for="Type" class="text-danger"></span>
+                </div>
+                <div class="form-group" style="padding: 10px">
+                    <label asp-for="Name" class="control-label"></label>
+                    <input asp-for="Name" name="Name" class="form-control" id="RoomName" placeholder="Nhập mã phòng, ví dụ: STD101" />
+                    <small class="form-text text-muted">Nhập mã phòng gồm tiền tố in hoa (STD, SUP, DLX, SUT) + số phòng, ví dụ: STD101.</small>
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="form-group" style="padding: 10px">
+                    <label asp-for="FloorNumber" class="control-label"></label>
+                    <input asp-for="FloorNumber" name="FloorNumber" class="form-control" min="0" required />
+                    <span asp-validation-for="FloorNumber" class="text-danger"></span>
+                </div>
+                <div class="form-group" style="padding: 10px">
+                    <label asp-for="Price" class="control-label"></label>
+                    <input asp-for="Price" name="Price" type="number" class="form-control" id="RoomPrice" min="100000" required />
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+                <div class="form-group" style="padding: 10px">
+                    <label asp-for="DAP" class="control-label"></label>
+                    <input asp-for="DAP" name="DAP" class="form-control" id="DAP" min="0" required placeholder="Số người quy định (>= 0)" />
+                    <span asp-validation-for="DAP" class="text-danger"></span>
+                </div>
+                <div class="form-group" style="padding: 10px">
+                    <label asp-for="MAP" class="control-label"></label>
+                    <input asp-for="MAP" name="MAP" class="form-control" id="MAP" min="0" required placeholder="Số người tối đa (>= số người quy định)" />
+                    <span asp-validation-for="MAP" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-4 col-lg-6" style="padding: 10px">
+                <div class="form-group" style="padding: 10px">
+                    <label asp-for="Introduce" class="control-label"></label>
+                    <textarea asp-for="Introduce" name="Introduce" class="form-control" rows="7"></textarea>
+                    <span asp-validation-for="Introduce" class="text-danger"></span>
+                </div>
+                <div class="form-group" style="padding: 10px">
+                    <label asp-for="Description" class="control-label"></label>
+                    <textarea asp-for="Description" name="Description" class="form-control" rows="7"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-4 col-lg-6" style="padding: 10px">
+                <div class="form-group  mb-3">
+                    <label>Tiện ích phòng</label><br />
+                    @foreach (var item in (List<SelectListItem>)ViewBag.ExtensionsList)
+                    {
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox"
+                                   name="SelectedExtensions" value="@item.Value"
+                            @(Model.Extension != null && Model.Extension.Contains(item.Value) ? "checked" : "") />
+                            <label class="form-check-label">@item.Text</label>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="form-group text-end" style="padding: 10px">
+            <input type="submit" value="Lưu" class="btn btn-primary" />
+        </div>
+    </form>
+</div>
+
+<script>
+    // Map loại phòng sang tiền tố mã phòng
+    const typeToPrefix = {
+        'Standard': 'STD',
+        'Superior': 'SUP',
+        'Deluxe': 'DLX',
+        'Suite': 'SUT'
+    };
+    const updateForm = document.querySelector('form[asp-action="Update"]');
+    if (updateForm) {
+        updateForm.addEventListener('submit', async function (e) {
+            // Validate mã phòng (Name) không được để trống
+            const nameInput = document.querySelector('[name="Name"]');
+            if (!nameInput || nameInput.value.trim() === "") {
+                alert('Mã phòng không được để trống.');
+                e.preventDefault();
+                return;
+            }
+            const type = document.querySelector('[name="Type"]').value;
+            const prefix = typeToPrefix[type];
+            const roomName = nameInput.value.trim();
+            // Validate định dạng mã phòng
+            if (!roomName.match(/^(STD|SUP|DLX|SUT)\d+$/)) {
+                alert('Mã phòng phải đúng định dạng: Tiền tố in hoa (STD, SUP, DLX, SUT) + số.');
+                e.preventDefault();
+                return;
+            }
+            // Kiểm tra tiền tố khớp loại phòng
+            if (!roomName.startsWith(prefix)) {
+                alert('Tiền tố mã phòng phải khớp với loại phòng đã chọn!');
+                e.preventDefault();
+                return;
+            }
+            // Kiểm tra mã phòng trùng (AJAX)
+            let isDuplicate = false;
+            try {
+                const res = await fetch('/Admin/RoomManager/CheckRoomCode?name=' + encodeURIComponent(roomName));
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.exists) isDuplicate = true;
+                }
+            } catch {}
+            if (isDuplicate) {
+                alert('Mã phòng đã tồn tại!');
+                e.preventDefault();
+                return;
+            }
+            // Validate giá phòng > 0
+            const priceInput = document.getElementById('RoomPrice') || document.querySelector('[name="Price"]');
+            let priceValue = priceInput ? priceInput.value : '';
+            if (typeof priceValue === 'string') {
+                priceValue = priceValue.replace(/[^\d]/g, '');
+            }
+            priceValue = parseInt(priceValue);
+            if (isNaN(priceValue) || priceValue <= 0) {
+                alert('Giá phòng phải lớn hơn 0.');
+                e.preventDefault();
+                return;
+            }
+            // Validate lầu >= 1
+            const floorInput = document.querySelector('[name="FloorNumber"]');
+            let floorValue = floorInput ? parseInt(floorInput.value) : NaN;
+            if (isNaN(floorValue) || floorValue < 1) {
+                alert('Số lầu phải lớn hơn hoặc bằng 1.');
+                e.preventDefault();
+                return;
+            }
+            // Validate số người
+            const dapInput = document.getElementById('DAP');
+            const mapInput = document.getElementById('MAP');
+            const dap = dapInput ? parseInt(dapInput.value) : NaN;
+            const map = mapInput ? parseInt(mapInput.value) : NaN;
+            if (isNaN(dap) || isNaN(map)) {
+                alert("Vui lòng nhập đầy đủ số người.");
+                e.preventDefault();
+                return;
+            }
+            if (map < dap) {
+                alert("Số người tối đa (MAP) phải lớn hơn hoặc bằng số người quy định (DAP).");
+                e.preventDefault();
+                return;
+            }
+            if (dap < 0 || map < 0) {
+                alert("Số người không được là số âm.");
+                e.preventDefault();
+                return;
+            }
+        });
+    }
+</script>
+<!--
+    // AJAX endpoint kiểm tra mã phòng trùng
+    // Thêm vào controller:
+    // [HttpGet]
+    // public IActionResult CheckRoomCode(string name) {
+    //     var exists = _context.Rooms.Any(r => r.Name == name);
+    //     return Json(new { exists });
+    // }
+-->
+
+<div>
+    <a href="/Admin/RoomManager">Back to List</a>
+</div>
+

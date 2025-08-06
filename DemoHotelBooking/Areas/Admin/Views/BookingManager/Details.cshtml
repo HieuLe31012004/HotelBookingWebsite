@@ -1,0 +1,264 @@
+@model DemoHotelBooking.ViewModels.BookingView
+@{
+    ViewData["Title"] = "Chi tiết đặt phòng #" + Model.Booking.Id;
+    Layout = "_Layout";
+}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="card-title">
+                            <i class="fas fa-file-invoice mr-2"></i>
+                            Chi tiết đặt phòng #@Model.Booking.Id
+                        </h3>
+                        <div>
+                            @switch (Model.Booking.Status)
+                            {
+                                case 1:
+                                    <span class="badge badge-warning badge-lg">Chờ nhận phòng</span>
+                                    break;
+                                case 2:
+                                    <span class="badge badge-primary badge-lg">Đã xác nhận</span>
+                                    break;
+                                case 3:
+                                    <span class="badge badge-danger badge-lg">Đã hủy</span>
+                                    break;
+                                case 4:
+                                    <span class="badge badge-success badge-lg">Đã nhận phòng</span>
+                                    break;
+                                case 5:
+                                    <span class="badge badge-success badge-lg">Hoàn thành</span>
+                                    break;
+                                case 6:
+                                    <span class="badge badge-secondary badge-lg">Đã thanh toán</span>
+                                    break;
+                                case 7:
+                                    <span class="badge badge-info badge-lg">Đã hoàn tiền</span>
+                                    break;
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <!-- Customer Information -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-user mr-2"></i>Thông tin khách hàng</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Họ tên:</strong></td>
+                                    <td>@Model.Booking.Customer?.FullName</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Email:</strong></td>
+                                    <td>@Model.Booking.Customer?.Email</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Số điện thoại:</strong></td>
+                                    <td>@Model.Booking.Customer?.PhoneNumber</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Địa chỉ:</strong></td>
+                                    <td>@Model.Booking.Customer?.Address</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Ngày sinh:</strong></td>
+                                    <td>@Model.Booking.Customer?.DoB?.ToString("dd/MM/yyyy")</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- Booking Information -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-calendar-alt mr-2"></i>Thông tin đặt phòng</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Ngày đặt:</strong></td>
+                                    <td>@Model.Booking.CreateDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Check-in:</strong></td>
+                                    <td>@Model.Booking.CheckinDate.ToString("dd/MM/yyyy")</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Check-out:</strong></td>
+                                    <td>@Model.Booking.CheckoutDate.ToString("dd/MM/yyyy")</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Số đêm:</strong></td>
+                                    <td>@Model.TotalNights đêm</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Số phòng:</strong></td>
+                                    <td>@Model.TotalRooms phòng</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Ghi chú:</strong></td>
+                                    <td>@(string.IsNullOrEmpty(Model.Booking.Note) ? "Không có" : Model.Booking.Note)</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Room Details -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-bed mr-2"></i>Danh sách phòng đã đặt</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>Hình ảnh</th>
+                                            <th>Tên phòng</th>
+                                            <th>Loại phòng</th>
+                                            <th>Giá/đêm</th>
+                                            <th>Số đêm</th>
+                                            <th>Thành tiền</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var detail in Model.Booking.BookingDetails)
+                                        {
+                                            var imageUrls = Model.GetRoomImageUrls(detail.Room);
+                                            <tr>
+                                                <td>
+                                                    @if (imageUrls.Any())
+                                                    {
+                                                        <img src="@imageUrls.First()" alt="Room" class="img-thumbnail" style="width: 80px; height: 60px; object-fit: cover;">
+                                                    }
+                                                    else
+                                                    {
+                                                        <img src="~/img/no-image.png" alt="Room" class="img-thumbnail" style="width: 80px; height: 60px; object-fit: cover;">
+                                                    }
+                                                </td>
+                                                <td>@detail.Room.Name</td>
+                                                <td>@detail.Room.Type</td>
+                                                <td>@detail.Room.Price.ToString("N0")₫</td>
+                                                <td>@Model.TotalNights</td>
+                                                <td><strong>@((Convert.ToDouble(detail.Room.Price) * Convert.ToDouble(Model.TotalNights)).ToString("N0"))₫</strong></td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Payment Details -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-calculator mr-2"></i>Chi tiết thanh toán</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td>Tiền phòng gốc:</td>
+                                    <td class="text-right">@Model.BasePrice.ToString("N0")₫</td>
+                                </tr>
+                                <tr>
+                                    <td>Giảm giá thành viên (2%):</td>
+                                    <td class="text-right text-success">-@Model.DiscountAmount.ToString("N0")₫</td>
+                                </tr>
+                                <tr>
+                                    <td>VAT (8%):</td>
+                                    <td class="text-right">+@Model.VatAmount.ToString("N0")₫</td>
+                                </tr>
+                                <tr class="border-top">
+                                    <td><strong>Tổng cộng:</strong></td>
+                                    <td class="text-right"><strong class="text-primary">@Model.FinalAmount.ToString("N0")₫</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Đặt cọc (20%):</td>
+                                    <td class="text-right"><strong class="text-warning">@Model.DepositAmount.ToString("N0")₫</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Còn lại phải trả:</td>
+                                    <td class="text-right"><strong class="text-danger">@((Model.FinalAmount - Model.DepositAmount).ToString("N0"))₫</strong></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- Invoice Information -->
+               
+            </div>
+            <!-- Action Buttons -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <a href="@Url.Action("Index")" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left mr-2"></i>Quay lại danh sách
+                            </a>
+                            @if (Model.Booking.Status == 1)
+                            {
+                                <form asp-area="Admin" asp-controller="Dashboard" asp-action="CheckIn" method="post" style="display:inline">
+                                    <input type="hidden" name="bookingId" value="@Model.Booking.Id" />
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-sign-in-alt mr-2"></i>Nhận phòng
+                                    </button>
+                                </form>
+                            }
+                            @if (Model.Booking.Status != 3 && Model.Booking.Status != 4)
+                            {
+                                <form asp-area="Admin" asp-controller="Dashboard" asp-action="ProcessRefund" method="post" style="display:inline">
+                                    <input type="hidden" name="bookingId" value="@Model.Booking.Id" />
+                                    <button type="submit" class="btn btn-warning">
+                                        <i class="fas fa-times mr-2"></i>Hủy đặt phòng
+                                    </button>
+                                </form>
+                            }
+                            <!--
+                            <button class="btn btn-info" onclick="printBooking()">
+                                <i class="fas fa-print mr-2"></i>In chi tiết
+                            </button>
+                            -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        function printBooking() {
+            window.print();
+        }
+    </script>
+    <style>
+        .badge-lg {
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+        }
+        @@media print {
+            .btn, .card-header, .no-print {
+                display: none !important;
+            }
+            .card {
+                border: none !important;
+                box-shadow: none !important;
+            }
+        }
+    </style>
+}

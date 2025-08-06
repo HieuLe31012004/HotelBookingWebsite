@@ -1,0 +1,15 @@
+  Determining projects to restore...
+d:\Outsourcing\CSharp\Web\CanChinhSua\DemoHotelBooking-master\DemoHotelBooking\DemoHotelBooking.csproj : warning NU1902: Package 'RestSharp' 111.4.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-4rr6-2v9v-wcpc
+  All projects are up-to-date for restore.
+d:\Outsourcing\CSharp\Web\CanChinhSua\DemoHotelBooking-master\DemoHotelBooking\DemoHotelBooking.csproj : warning NU1902: Package 'RestSharp' 111.4.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-4rr6-2v9v-wcpc
+d:\Outsourcing\CSharp\Web\CanChinhSua\DemoHotelBooking-master\DemoHotelBooking\Controllers\RoomController.cs(109,9): error CS1519: Invalid token '}' in class, record, struct, or interface member declaration [d:\Outsourcing\CSharp\Web\CanChinhSua\DemoHotelBooking-master\DemoHotelBooking\DemoHotelBooking.csproj]
+
+Build FAILED.
+
+d:\Outsourcing\CSharp\Web\CanChinhSua\DemoHotelBooking-master\DemoHotelBooking\DemoHotelBooking.csproj : warning NU1902: Package 'RestSharp' 111.4.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-4rr6-2v9v-wcpc
+d:\Outsourcing\CSharp\Web\CanChinhSua\DemoHotelBooking-master\DemoHotelBooking\DemoHotelBooking.csproj : warning NU1902: Package 'RestSharp' 111.4.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-4rr6-2v9v-wcpc
+d:\Outsourcing\CSharp\Web\CanChinhSua\DemoHotelBooking-master\DemoHotelBooking\Controllers\RoomController.cs(109,9): error CS1519: Invalid token '}' in class, record, struct, or interface member declaration [d:\Outsourcing\CSharp\Web\CanChinhSua\DemoHotelBooking-master\DemoHotelBooking\DemoHotelBooking.csproj]
+    2 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:02.85

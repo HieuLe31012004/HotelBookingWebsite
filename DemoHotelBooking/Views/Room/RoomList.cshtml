@@ -1,0 +1,163 @@
+﻿@model IEnumerable<DemoHotelBooking.ViewModels.DetailedRoomStatusViewModel>
+
+@if (Model.Any())
+{
+    var firstRoom = Model.First();
+    <div class="alert alert-info mb-4">
+        <i class="fas fa-info-circle mr-2"></i>
+        <strong>Kết quả tìm kiếm:</strong> @Model.Count() phòng khả dụng
+        từ @firstRoom.CheckInDate?.ToString("dd/MM/yyyy") đến @firstRoom.CheckOutDate?.ToString("dd/MM/yyyy")
+    </div>
+}
+
+<div class="row g-4">
+    @if (Model.Any())
+    {
+        @foreach (var item in Model)
+        {
+            <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s" style="visibility: visible; animation-delay: 0.1s; animation-name: fadeInUp;">
+                <div class="room-item shadow rounded overflow-hidden">
+
+                    <div class="position-relative">
+                        @{
+                            string imageSrc;
+                            if (item.Room.RoomImages != null && item.Room.RoomImages.Count > 0)
+                            {
+                                imageSrc = item.Room.RoomImages.ToList().FirstOrDefault().Path;
+                            }
+                            else
+                            {
+                                int mod = item.Room.Id % 3;
+                                imageSrc = mod == 1 ? Url.Content("~/img/room-1.jpg") :
+                                mod == 2 ? Url.Content("~/img/room-2.jpg") :
+                                Url.Content("~/img/room-3.jpg");
+                            }
+                        }
+
+                        <img class="img-fluid" src="@imageSrc" alt="">
+                        <small class="position-absolute start-0 top-100 translate-middle-y bg-primary text-white rounded py-1 px-3 ms-4">@string.Format("{0:#,0}đ", item.Room.Price)/Đêm</small>
+
+                        <!-- Hiển thị trạng thái phòng -->
+                        <span class="position-absolute end-0 top-0 @(item.IsAvailable ? "bg-success" : item.DetailedStatusClass) text-white rounded-bottom py-1 px-3 me-3">
+                            <i class="@(item.IsAvailable ? "fa fa-check" : "fa fa-times") me-1"></i>
+                            @(item.DetailedStatus)
+                        </span>
+                    </div>
+                    <div class="p-4 mt-2">
+                        <div class="d-flex justify-content-between mb-3">
+                            <h5 class="mb-0">@Html.DisplayFor(modelItem => item.Room.Name)</h5>
+                            <div class="ps-2">
+                                <small class="fa fa-star text-primary"></small>
+                                <small class="fa fa-star text-primary"></small>
+                                <small class="fa fa-star text-primary"></small>
+                                <small class="fa fa-star text-primary"></small>
+                                <small class="fa fa-star text-primary"></small>
+                            </div>
+                        </div>
+                        <div class="d-flex mb-3">
+                            <small class="border-end me-3 pe-3"><i class="fa fa-bed text-primary me-2"></i>Số người tối đa: @(item.Room.MAP)</small>
+                            <small class="border-end me-3 pe-3"><i class="fa fa-bath text-primary me-2"></i>Số người: @(item.Room.DAP)</small>
+                            <small><i class="fa fa-wifi text-primary me-2"></i> @(item.Room.Extension)</small>
+                        </div>
+                        <p class="text-body mb-3">@Html.DisplayFor(modelItem => item.Room.Description)</p>
+
+                        <!-- Hiển thị thông tin tình trạng phòng chi tiết -->
+                        <div class="alert @(item.IsAvailable ? "alert-success" : "alert-warning") p-3 mb-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="@(item.IsAvailable ? "fa fa-check-circle" : "fa fa-exclamation-triangle") me-2"></i>
+                                <strong>Tình trạng: @item.DetailedStatus</strong>
+                            </div>
+
+                            @if (item.DetailedStatus != "Phòng trống")
+                            {
+                                <div class="small text-muted">
+                                    @if (!string.IsNullOrEmpty(item.CustomerName))
+                                    {
+                                        <div><i class="fa fa-user me-1"></i> Khách hàng: <strong>@item.CustomerName</strong></div>
+                                    }
+                                    @if (item.BookedCheckInDate.HasValue && item.BookedCheckOutDate.HasValue)
+                                    {
+                                        <div><i class="fa fa-calendar me-1"></i> Thời gian: <strong>@item.BookedCheckInDate?.ToString("dd/MM/yyyy") - @item.BookedCheckOutDate?.ToString("dd/MM/yyyy")</strong></div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(item.BookingStatus))
+                                    {
+                                        <div>
+                                            <i class="fa fa-info-circle me-1"></i> Trạng thái: <span class="badge @item.DetailedStatusClass">
+                                                @if ((item.BookingStatus == "Đã xác nhận" || item.BookingStatus == "Hoàn thành") && item.PaymentStatus == "Đã thanh toán đầy đủ")
+                                                {
+                                                    @:Đã xác nhận - Đang được thuê
+                                                }
+                                                else
+                                                {
+                                                    @item.DetailedStatus
+                                                }
+                                            </span>
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(item.PaymentStatus))
+                                    {
+                                        <div>
+                                            <i class="fa fa-credit-card me-1"></i> Thanh toán: <strong>
+                                                @if ((item.BookingStatus == "Đã xác nhận" || item.BookingStatus == "Hoàn thành") && item.PaymentStatus == "Đã thanh toán đầy đủ")
+                                                {
+                                                    @:Đã xác nhận - Đang được thuê
+                                                }
+                                                else
+                                                {
+                                                    @item.PaymentStatus
+                                                }
+                                            </strong>
+                                        </div>
+                                    }
+                                    @if (item.BookingDate.HasValue)
+                                    {
+                                        <div><i class="fa fa-clock me-1"></i> Đặt ngày: <strong>@item.BookingDate?.ToString("dd/MM/yyyy HH:mm")</strong></div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="small text-success">
+                                    <i class="fa fa-check me-1"></i>
+                                    Sẵn sàng phục vụ khách hàng
+                                </div>
+                            }
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a class="btn btn-sm btn-primary rounded py-2 px-4" asp-action="details" asp-route-id="@item.Room.Id">Chi tiết</a>
+                            @if (item.DetailedStatus == "Phòng trống")
+                            {
+                                @if (User.Identity.IsAuthenticated)
+                                {
+                                    <a class="btn btn-sm btn-dark rounded py-2 px-4" asp-action="Booking" asp-controller="Booking" asp-route-id="@item.Room.Id">Đặt ngay</a>
+                                }
+                                else
+                                {
+                                    <a class="btn btn-sm btn-warning rounded py-2 px-4" asp-action="Login" asp-controller="Account"
+                                       title="Vui lòng đăng nhập để đặt phòng">
+                                        <i class="fas fa-user"></i> Đăng nhập để đặt
+                                    </a>
+                                }
+                            }
+                            else
+                            {
+                                <button class="btn btn-sm btn-secondary rounded py-2 px-4" disabled>Không khả dụng</button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-search fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">Không tìm thấy phòng nào</h4>
+                <p class="text-muted">Vui lòng thử tìm kiếm với từ khóa khác hoặc thay đổi ngày nhận/trả phòng.</p>
+            </div>
+        </div>
+    }
+</div>

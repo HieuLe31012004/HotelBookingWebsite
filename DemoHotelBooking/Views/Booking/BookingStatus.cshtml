@@ -1,0 +1,142 @@
+@model DemoHotelBooking.ViewModels.BookingView
+@{
+    ViewData["Title"] = "Trạng thái đặt phòng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var invoice = ViewBag.Invoice as DemoHotelBooking.Models.Invoice;
+    var canCancel = ViewBag.CanCancel as bool? ?? false;
+    var paymentInfo = ViewBag.PaymentInfo as string ?? "";
+}
+
+<div class="container">
+    <h2>Trạng thái đặt phòng #@Model.Booking.Id</h2>
+    
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+    
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Thông tin đặt phòng</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Trạng thái:</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge @(Model.StatusColor.Replace("text-", "bg-"))">@Model.Status</span>
+                        </dd>
+                        
+                        <dt class="col-sm-4">Ngày đặt:</dt>
+                        <dd class="col-sm-8">@Model.Booking.CreateDate.ToString("dd/MM/yyyy HH:mm")</dd>
+                        
+                        <dt class="col-sm-4">Ngày nhận phòng:</dt>
+                        <dd class="col-sm-8">@Model.Booking.CheckinDate.ToString("dd/MM/yyyy HH:mm")</dd>
+                        
+                        <dt class="col-sm-4">Ngày trả phòng:</dt>
+                        <dd class="col-sm-8">@Model.Booking.CheckoutDate.ToString("dd/MM/yyyy HH:mm")</dd>
+                        
+                        <dt class="col-sm-4">Tiền cọc:</dt>
+                        <dd class="col-sm-8">@string.Format("{0:#,0} VNĐ", Model.Booking.Deposit)</dd>
+                        
+                        <dt class="col-sm-4">Phương thức cọc:</dt>
+                        <dd class="col-sm-8">@(Model.Booking.PaymentMethod == 0 ? "Tiền mặt" : "MoMo")</dd>
+                    </dl>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5>Danh sách phòng</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Mã phòng</th>
+                                <th>Loại phòng</th>
+                                <th>Giá phòng</th>
+                                <th>Lầu</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var room in Model.Rooms)
+                            {
+                                <tr>
+                                    <td>@room.Room.Name</td>
+                                    <td>@room.Room.Type</td>
+                                    <td>@string.Format("{0:#,0} VNĐ", room.Room.Price)</td>
+                                    <td>@room.Room.FloorNumber</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Thông tin thanh toán</h5>
+                </div>
+                <div class="card-body">
+                    @if (invoice != null)
+                    {
+                        <p><strong>Mã hóa đơn:</strong> @invoice.Id</p>
+                        <p><strong>Ngày tạo:</strong> @invoice.CreateDate.ToString("dd/MM/yyyy HH:mm")</p>
+                        <p><strong>Tổng tiền:</strong> @string.Format("{0:#,0} VNĐ", invoice.Amount)</p>
+                        <p><strong>Trạng thái:</strong> @paymentInfo</p>
+                        
+                        @if (invoice.Status == 3)
+                        {
+                            <p><strong>Ngày thanh toán:</strong> @invoice.PaymentDate.ToString("dd/MM/yyyy HH:mm")</p>
+                            <span class="badge bg-success">Đã thanh toán</span>
+                        }
+                        else if (invoice.Status > 0)
+                        {
+                            <span class="badge bg-warning">Chờ thanh toán</span>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">@paymentInfo</p>
+                    }
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5>Thao tác</h5>
+                </div>
+                <div class="card-body">
+                    @if (canCancel)
+                    {
+                        <a href="@Url.Action("CancelBooking", "Booking", new { id = Model.Booking.Id })" 
+                           class="btn btn-danger" 
+                           onclick="return confirm('Bạn có chắc chắn muốn hủy đặt phòng này?')">
+                            Hủy đặt phòng
+                        </a>
+                        <p class="text-muted mt-2">
+                            <small>Bạn có thể hủy đặt phòng và được hoàn cọc nếu hủy trước ngày nhận phòng.</small>
+                        </p>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Không thể hủy đặt phòng ở trạng thái hiện tại.</p>
+                    }
+                    
+                    <a href="@Url.Action("History", "Booking")" class="btn btn-secondary">
+                        Quay lại lịch sử đặt phòng
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
